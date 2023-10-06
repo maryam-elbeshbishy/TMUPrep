@@ -1,49 +1,50 @@
 package main
 
 import (
-    "context"
-    "log"
+	"context"
+	"log"
 
-    "github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin"
 
-    "go.mongodb.org/mongo-driver/mongo"
-    "go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
+
+	"tmuprep/configs"
 )
 
-const uri = "connection string"
+var uri string = configs.EnvMongoURI()
 
 var mongoClient *mongo.Client
 
 func init() {
-    if err := connectToMongodb(); err != nil {
-        log.Fatal("Could not connect to MongoDB")
-    }
+	if err := connectToMongodb(); err != nil {
+		log.Fatal("Could not connect to MongoDB")
+	}
 }
-
 
 func main() {
 	r := gin.Default()
 
-    r.GET("/", func(c *gin.Context) {
-        c.JSON(200, gin.H{
-            "message": "Hello World",
-        })
-    })
+	r.GET("/", func(c *gin.Context) {
+		c.JSON(200, gin.H{
+			"message": "Hello World",
+		})
+	})
 
-    r.Run()
+	r.Run()
 }
 
 func connectToMongodb() error {
-    serverAPI := options.ServerAPI(options.ServerAPIVersion1)
-	
-    opts := options.Client().ApplyURI(uri).SetServerAPIOptions(serverAPI)
+	serverAPI := options.ServerAPI(options.ServerAPIVersion1)
 
-    client, err := mongo.Connect(context.TODO(), opts)
+	opts := options.Client().ApplyURI(uri).SetServerAPIOptions(serverAPI)
 
-    if err != nil {
-        panic(err)
-    }
-    err = client.Ping(context.TODO(), nil)
-    mongoClient = client
-    return err
+	client, err := mongo.Connect(context.TODO(), opts)
+
+	if err != nil {
+		panic(err)
+	}
+	err = client.Ping(context.TODO(), nil)
+	mongoClient = client
+	return err
 }
