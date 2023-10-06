@@ -15,7 +15,7 @@ const uri = "connection string"
 var mongoClient *mongo.Client
 
 func init() {
-    if err := connect_to_mongodb(); err != nil {
+    if err := connectToMongodb(); err != nil {
         log.Fatal("Could not connect to MongoDB")
     }
 }
@@ -33,7 +33,7 @@ func main() {
     r.Run()
 }
 
-func connect_to_mongodb() error {
+func connectToMongodb() error {
     serverAPI := options.ServerAPI(options.ServerAPIVersion1)
 	
     opts := options.Client().ApplyURI(uri).SetServerAPIOptions(serverAPI)
