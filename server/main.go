@@ -1,23 +1,21 @@
 package main
 
 import (
-	"context"
 	"log"
 
 	"github.com/gin-gonic/gin"
 
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
-
 	"tmuprep/configs"
+
+	"tmuprep/routes/schedule"
 )
 
 var uri string = configs.EnvMongoURI()
 
-var mongoClient *mongo.Client
+var mongoClient, err = configs.ConnectToMongodb()
 
 func init() {
-	if err := connectToMongodb(); err != nil {
+	if err != nil {
 		log.Fatal("Could not connect to MongoDB")
 	}
 }
@@ -31,20 +29,10 @@ func main() {
 		})
 	})
 
-	r.Run()
-}
-
-func connectToMongodb() error {
-	serverAPI := options.ServerAPI(options.ServerAPIVersion1)
-
-	opts := options.Client().ApplyURI(uri).SetServerAPIOptions(serverAPI)
-
-	client, err := mongo.Connect(context.TODO(), opts)
-
-	if err != nil {
-		panic(err)
+	router := r.Group("/schedule")
+	{
+		schedule.Routes(router, mongoClient)
 	}
-	err = client.Ping(context.TODO(), nil)
-	mongoClient = client
-	return err
+
+	r.Run()
 }
