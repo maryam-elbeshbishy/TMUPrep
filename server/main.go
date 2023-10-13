@@ -2,12 +2,12 @@ package main
 
 import (
 	"log"
-
-	"github.com/gin-gonic/gin"
-
 	"tmuprep/configs"
 
-	"tmuprep/routes/schedule"
+	"tmuprep/routes/courseRoutes"
+	"tmuprep/routes/scheduleRoutes"
+
+	"github.com/gin-gonic/gin"
 )
 
 var uri string = configs.EnvMongoURI()
@@ -21,18 +21,24 @@ func init() {
 }
 
 func main() {
-	r := gin.Default()
+	router := gin.Default()
 
-	r.GET("/", func(c *gin.Context) {
+	router.GET("/", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"message": "Hello World",
 		})
 	})
 
-	router := r.Group("/schedule")
+	scheduleRoute := router.Group("/schedule")
 	{
-		schedule.Routes(router, mongoClient)
+		scheduleRoutes.Routes(scheduleRoute, mongoClient)
 	}
 
-	r.Run()
+	courseRoute := router.Group("/course")
+	{
+		courseRoutes.Routes(courseRoute, mongoClient)
+	}
+
+
+	router.Run()
 }

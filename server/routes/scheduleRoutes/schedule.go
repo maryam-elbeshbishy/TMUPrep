@@ -1,4 +1,4 @@
-package schedule
+package scheduleRoutes
 
 import (
 	"github.com/gin-gonic/gin"
@@ -9,7 +9,7 @@ import (
 func Routes(router *gin.RouterGroup, mongoDB *mongo.Client )  {
 	router.GET("", func (c *gin.Context)  {
 		c.JSON(200, gin.H{
-			"message": "schedule",
+			"message": "course",
 		})
 	})
 }
