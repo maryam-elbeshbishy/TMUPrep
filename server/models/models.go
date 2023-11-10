@@ -22,6 +22,7 @@ type Enrolled struct {
 
 type User struct {
     ID primitive.ObjectID `bson:"_id"`
+    GoogleID string `bson:"googleID"`
 }
 
 type Requirement struct {

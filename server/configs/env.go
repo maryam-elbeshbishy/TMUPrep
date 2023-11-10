@@ -12,17 +12,17 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func EnvMongoURI() string {
+func GetEnvVar(variable string) string {
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
 
-	return os.Getenv("MONGOURI")
+	return os.Getenv(variable)
 }
 
 func ConnectToMongodb() (*mongo.Client, error) {
-	uri := EnvMongoURI()
+	uri := GetEnvVar("MONGOURI")
 
 	serverAPI := options.ServerAPI(options.ServerAPIVersion1)
 
