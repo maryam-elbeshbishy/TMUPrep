@@ -13,12 +13,6 @@ import (
 )
 
 func Routes(router *gin.RouterGroup, mongoDB *mongo.Client) {
-	/*
-		{
-			page: int,
-			limit: int
-		}
-	*/
 	router.GET("", func(c *gin.Context) {
 		l, _ := c.GetQuery("limit")
 		p, _ := c.GetQuery("page")
