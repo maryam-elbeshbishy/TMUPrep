@@ -41,7 +41,7 @@ func Routes(router *gin.RouterGroup, mongoDB *mongo.Client) {
 			}
 		}
 
-		paginationOptions := options.Find().SetLimit(int64(limit)).SetSkip(int64(page))
+		paginationOptions := options.Find().SetLimit(int64(limit)).SetSkip(int64(page)*int64(limit))
 
 		var courses []models.Course
 
