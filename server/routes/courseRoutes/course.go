@@ -30,7 +30,7 @@ func Routes(router *gin.RouterGroup, mongoDB *mongo.Client) {
 		}
 		var numberOfPages float64
 		if limit > 0 {
-			numberOfPages = math.Ceil(float64(count) / float64(limit))
+			numberOfPages = math.Ceil((float64(count) / float64(limit)) - 1)
 
 			if float64(page) > float64(numberOfPages) {
 				c.JSON(http.StatusInternalServerError, gin.H{
@@ -41,7 +41,7 @@ func Routes(router *gin.RouterGroup, mongoDB *mongo.Client) {
 			}
 		}
 
-		paginationOptions := options.Find().SetLimit(int64(limit)).SetSkip(int64(page))
+		paginationOptions := options.Find().SetLimit(int64(limit)).SetSkip(int64(page)*int64(limit))
 
 		var courses []models.Course
 
