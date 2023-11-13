@@ -38,3 +38,8 @@ type Program struct {
 	ID   primitive.ObjectID `bson:"_id"`
 	Name string             `json:"name" bson:"name"`
 }
+
+type Schedule struct {
+	ID 	primitive.ObjectID `bson:"_id"`
+	belongsTo	string
+}
