@@ -1,93 +1,117 @@
 package scheduleRoutes
 
 import (
-	"log"
 	"net/http"
 	"tmuprep/models"
 
 	"github.com/gin-gonic/gin"
 
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-func Routes(router *gin.RouterGroup, mongoDB *mongo.Client )  {
-	router.GET("", func (c *gin.Context)  {
-		c.JSON(200, gin.H{
+func Routes(router *gin.RouterGroup, mongoDB *mongo.Client) {
+	router.GET("", func(c *gin.Context) {
+		c.JSON(http.StatusAccepted, gin.H{
 			"message": "course",
 		})
 	})
 
-	router.GET("/:getSchedules", func(c *gin.Context){
-		userID := "ASD" // TODO
+	router.POST("/:schedule", func(c *gin.Context) {
+		userID, _ := c.Get("userID")
+		schedule := models.Schedule{UserID: userID.(string)}
+		scheduleObj, err := mongoDB.Database("tmuprep").Collection("schedules").InsertOne(c, schedule)
+
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "sry servers down"})
+		}
+		c.JSON(http.StatusAccepted, gin.H{
+			"scheduleID": scheduleObj.InsertedID,
+		})
+	})
+
+	// Enrollment: {ScheduleID: SID, course: "COURSE"}
+	router.PUT("/schedule/:scheduleID", func(c *gin.Context) {
+		type CourseRequest struct {
+			CourseID string `json:"courseID" bson:"courseID"`
+			Year     int    `json:"year" bson:"year"`
+			Term     int    `json:"term" bson:"term"`
+		}
+		type EnrollRequest struct {
+			CourseList []CourseRequest `json:"courseList" bson:"courseList"`
+		}
+
+		var request EnrollRequest
+		userID, _ := c.Get("userID")
+		var userPID, schedulePID primitive.ObjectID
+		var err error
+		if userPID, err = primitive.ObjectIDFromHex(userID.(string)); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "Bad request :P",
+			})
+			return
+		}
+		if schedulePID, err = primitive.ObjectIDFromHex(c.Param("scheduleID")); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "Bad request :P",
+			})
+			return
+		}
+		if err := c.BindJSON(&request); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "Bad request :P",
+			})
+			return
+		}
+
+		var enrollmentList []interface{}
+		for _, element := range request.CourseList {
+			enrollmentList = append(enrollmentList, models.Enrolled{UserID: userPID, CourseID: element.CourseID, Year: element.Year, Term: element.Term, ScheduleID: schedulePID})
+		}
+		mongoDB.Database("tmuprep").Collection("enrollments").InsertMany(c, enrollmentList)
+	})
+
+	router.GET("/:getSchedules", func(c *gin.Context) {
+		userID, _ := c.Get("userID")
 		coll := mongoDB.Database("tmuprep").Collection("schedules")
 		cursor, err := coll.Find(c, bson.D{{"belongsTo", userID}})
 		var results []bson.M
 		if err != nil {
-			panic(err)
+			c.JSON(http.StatusBadRequest, gin.H{"error": "No schedules found"})
 		}
-		for cursor.Next(c) {
-            var result bson.M
-            err := cursor.Decode(&result)
-            if err != nil {
-                log.Fatal(err)
-            }
-            results = append(results, result)
-        }
-        // Return the results as JSON
-        c.JSON(http.StatusOK, results)
+		if err = cursor.All(c, &results); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": err.Error(),
+			})
+		}
+		// Return the results as JSON
+		c.JSON(http.StatusOK, results)
 	})
 
-	router.GET("/:getSchedule", func(c *gin.Context){
+	// SCHEDULE ID, GET BACK COURSES[]
+	router.GET("/schedule/:scheduleID", func(c *gin.Context) {
+		scheduleID := c.Param("scheduleID")
+		userID, _ := c.Get("userID") // TODO
 		var schedule models.Schedule
-		scheduleID := "ID"
-		// TODO GET ID
-		userID := "A"
-		err := mongoDB.Database("tmuprep").Collection("schedules").FindOne(c, bson.D{{"scheduleID", scheduleID}}).Decode(&schedule)
-		if err != nil {c.JSON(http.StatusBadRequest, gin.H{"msg": "No Schedules found!"})}
+		err := mongoDB.Database("tmuprep").Collection("schedules").FindOne(c, bson.D{{"scheduleID", scheduleID}, {"userID", userID}}).Decode(&schedule)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"msg": "No Schedules found!"})
+		}
 
-		// VERIFY BELONGS TO USER
-		
 		// RETURN ALL DOCUMENTS FROM THAT SCHEDULE
 		coll := mongoDB.Database("tmuprep").Collection("enrollments")
-		cursor, err := coll.Find(c, bson.D{{"student", userID}})
+		cursor, err := coll.Find(c, bson.D{{"scheduleID", scheduleID}})
 		var results []bson.M
 		if err != nil {
 			panic(err)
 		}
-		for cursor.Next(c) {
-            var result bson.M
-            err := cursor.Decode(&result)
-            if err != nil {
-                log.Fatal(err)
-            }
-            results = append(results, result)
-        }
-        // Return the results as JSON
-        c.JSON(http.StatusOK, results)
-	})
-
-	router.GET("/:scheduleID", func(c *gin.Context) {
-		courseID := c.Param("scheduleID")
-		// IGOR TODO
-
-
-		var course models.Course
-		err := mongoDB.Database("tmuprep").Collection("schedules").FindOne(c, bson.D{{"courseCode", courseID}}).Decode(&course)
-		if err != nil {
-			if err == mongo.ErrNoDocuments {
-				c.JSON(400, gin.H{
-					"error": "Courses not found",
-				})
-				return
-			}
-			panic(err)
+		if err = cursor.All(c, &results); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"error": err.Error(),
+			})
 		}
-
-		c.JSON(http.StatusOK, gin.H{
-			"oid":        course.ID,
-			"courseName": course.CourseCode,
-		})
+		c.JSON(http.StatusOK, results)
 	})
 }
