@@ -76,7 +76,7 @@ func Routes(router *gin.RouterGroup, mongoDB *mongo.Client) {
 	router.GET("/:getSchedules", func(c *gin.Context) {
 		userID, _ := c.Get("userID")
 		coll := mongoDB.Database("tmuprep").Collection("schedules")
-		cursor, err := coll.Find(c, bson.D{{"belongsTo", userID}})
+		cursor, err := coll.Find(c, bson.D{{"userID", userID}})
 		var results []bson.M
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "No schedules found"})
