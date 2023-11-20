@@ -5,8 +5,23 @@ import Dashboard from './pages/Dashboard/Dashboard'
 import CourseHub from './pages/CourseHub/CourseHub'
 import About from './pages/About/About'
 import FAQ from './pages/FAQ/FAQ'
+import Protected from './components/Protected'
+import { useContext } from 'react'
+import { GlobalContext } from './contexts/GlobalContext'
+import { onAuthStateChanged } from 'firebase/auth'
+import { auth } from './services/auth'
 
 function App() {
+    const { state, dispatch } = useContext(GlobalContext)
+
+    onAuthStateChanged(auth, user => {
+        if (user && state.isAuthenticated != true) {
+            dispatch({ type: 'AUTHENTICATE' })
+        } else if (!user && state.isAuthenticated != false) {
+            dispatch({ type: 'UNAUTHENTICATE' })
+        }
+    })
+
     const router = createBrowserRouter([
         {
             path: '/',
@@ -14,11 +29,11 @@ function App() {
         },
         {
             path: '/dashboard',
-            element: <Dashboard />,
+            element: <Protected children={<Dashboard />} />,
         },
         {
             path: '/hub',
-            element: <CourseHub />,
+            element: <Protected children={<CourseHub />} />,
         },
         {
             path: '/about',
