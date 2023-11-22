@@ -1,5 +1,4 @@
-import React from 'react'
-import NavBar from '../../components/NavBar'
+import React, { useContext } from 'react'
 /// <reference types="vite-plugin-svgr/client" />
 import PreviewHero from '../../assets/landing/previewHeroTwo.svg'
 import TmuPrepHero from '../../assets/landing/tmuPrepHero.svg'
@@ -14,12 +13,19 @@ import {
     Stack,
     Link,
 } from '@chakra-ui/react'
+import { logIn } from '../../services/auth'
+import { GlobalContext } from '../../contexts/GlobalContext'
+import { Navigate } from 'react-router-dom'
 
 const Landing = () => {
-    return (
+    const { state } = useContext(GlobalContext)
+
+    if (state.isAuthenticated == null) return <></>
+    return state.isAuthenticated ? (
+        <Navigate to="/dashboard" />
+    ) : (
         <Box bg="#FFFAF2" w="100vw" h="100vh">
             <Center h="100%" w="100%" flexDirection="column">
-                <NavBar />
                 <Box w="100vw">
                     <Flex color="white">
                         <Flex
@@ -57,10 +63,12 @@ const Landing = () => {
                                     ]}
                                 >
                                     <Button
+                                        onClick={logIn}
                                         variant="outline"
                                         ml={['0', '0', '2vw']}
                                         h={['15vh', '15vh', '10vh']}
-                                        bg="red"
+                                        bg="#648DE6"
+                                        color="white"
                                         w={[
                                             '40vw',
                                             '25vw',
@@ -69,7 +77,7 @@ const Landing = () => {
                                             '10vw',
                                         ]}
                                     >
-                                        SAMPLE BUTTON
+                                        Sign In
                                     </Button>
                                 </Flex>
                             </Stack>

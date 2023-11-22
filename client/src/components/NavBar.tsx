@@ -28,9 +28,13 @@
 
 // export default NavBar
 
-import { Box, Flex, Spacer, IconButton } from '@chakra-ui/react'
+import { Box, Flex, Spacer, IconButton, Button } from '@chakra-ui/react'
+import { logOut } from '../services/auth'
+import { useContext } from 'react'
+import { GlobalContext } from '../contexts/GlobalContext'
 
 function NavBar() {
+    const { state } = useContext(GlobalContext)
     return (
         <Flex
             bg="#648DE6"
@@ -77,6 +81,9 @@ function NavBar() {
                     aria-label="Help"
                     mx={2}
                 />
+                {state.isAuthenticated && (
+                    <Button onClick={logOut}>Sign out</Button>
+                )}
             </Flex>
         </Flex>
     )
