@@ -6,6 +6,9 @@ import CourseHub from './pages/CourseHub/CourseHub'
 import About from './pages/About/About'
 import FAQ from './pages/FAQ/FAQ'
 
+import Navbar from './components/NavBar'
+import { Fragment } from 'react'
+
 function App() {
     const router = createBrowserRouter([
         {
@@ -30,7 +33,12 @@ function App() {
         },
     ])
 
-    return <RouterProvider router={router} />
+    return (
+        <Fragment>
+            <Navbar />
+            <RouterProvider router={router} />
+        </Fragment>
+    )
 }
 
 export default App
