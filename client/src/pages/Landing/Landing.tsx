@@ -24,7 +24,7 @@ const Landing = () => {
     return state.isAuthenticated ? (
         <Navigate to="/dashboard" />
     ) : (
-        <Box bg="#FFFAF2" w="100vw" h="100vh">
+        <Box bg="surface.main" w="100vw" h="100vh">
             <Center h="100%" w="100%" flexDirection="column">
                 <Box w="100vw">
                     <Flex color="white">
@@ -67,7 +67,7 @@ const Landing = () => {
                                         variant="outline"
                                         ml={['0', '0', '2vw']}
                                         h={['15vh', '15vh', '10vh']}
-                                        bg="#648DE6"
+                                        bg="primary.main"
                                         color="white"
                                         w={[
                                             '40vw',
