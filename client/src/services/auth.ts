@@ -40,7 +40,7 @@ export const logOut = () => {
 
 const fetchJWT = async (googleID: string) => {
     axiosInstance
-        .post('/login', { id: googleID })
+        .post('/login', { googleID: googleID })
         .then(res => {
             console.log(res.data)
             cookies.set('jwt', res.data['jwt'])

@@ -42,7 +42,7 @@ function App() {
             element: <Protected children={<Dashboard />} />,
         },
         {
-            path: '/hub',
+            path: '/coursehub',
             element: <Protected children={<CourseHub />} />,
         },
         {

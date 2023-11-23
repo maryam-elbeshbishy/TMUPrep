@@ -43,9 +43,6 @@ function NavBar() {
             width="100%"
             px={4}
             align="center"
-            position="fixed"
-            top={0}
-            left={0}
         >
             {'TMU PREP'}
             <Box p="2">
