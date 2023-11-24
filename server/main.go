@@ -8,6 +8,7 @@ import (
 	"tmuprep/routes/courseRoutes"
 	"tmuprep/routes/scheduleRoutes"
 	"tmuprep/routes/userRoutes"
+	"tmuprep/routes/graduateRoutes"
 
 	"github.com/gin-gonic/gin"
 
@@ -50,6 +51,12 @@ func main() {
 	courseRoute := router.Group("/course")
 	{
 		courseRoutes.Routes(courseRoute, mongoClient)
+	}
+
+	graduateRoute := router.Group("/graduate")
+	graduateRoute.Use(middleware.UserAuthetication(mongoClient))
+	{
+		graduateRoutes.Routes(graduateRoute, mongoClient)
 	}
 
 	router.Run()

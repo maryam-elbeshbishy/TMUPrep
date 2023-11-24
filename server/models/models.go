@@ -31,16 +31,22 @@ type User struct {
 }
 
 type Requirement struct {
-	ID   primitive.ObjectID `bson:"_id"`
-	Name string             `json:"name" bson:"name"`
+	ID         primitive.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
+	Programs   primitive.ObjectID `json:"programs,omitempty" bson:"programs,omitempty"`
+	Name       string             `json:"name" bson:"name"`
+	NumCourses int                `json:"num_courses" bson:"num_courses"`
+	Optional   bool               `json:"optional" bson:"optional"`
 }
 
 type Program struct {
-	ID   primitive.ObjectID `bson:"_id"`
-	Name string             `json:"name" bson:"name"`
+	ID           primitive.ObjectID `json:"_id" json:"_id" bson:"_id"`
+	Name         string             `json:"name" bson:"name"`
+	Requirements []Requirement      `json:"requirements" bson:"requirements"`
 }
 
 type Schedule struct {
-	// ID     primitive.ObjectID `bson:"_id, omitempty"`
-	UserID primitive.ObjectID `json:"userID" bson:"userID"`
+	ID           primitive.ObjectID `json:"_id" bson:"_id"`
+	UserID       primitive.ObjectID `json:"userID" bson:"userID"`
+	Name         string             `json:"name" bson:"name"`
+	Requirements []Requirement      `json:"requirements" bson:"requirements"`
 }
