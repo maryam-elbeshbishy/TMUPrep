@@ -1,12 +1,17 @@
 import React from 'react'
 import {
-    Box,
     Flex,
     Spacer,
     Button,
     Image,
     Tooltip, // Import Tooltip
 } from '@chakra-ui/react'
+import {
+    AiFillHome,
+    AiFillBook,
+    AiFillQuestionCircle,
+    AiOutlineSearch,
+} from 'react-icons/ai'
 
 const Navbar: React.FC = () => {
     // const breakpoints = {
@@ -20,6 +25,7 @@ const Navbar: React.FC = () => {
             py="1rem"
             backgroundColor="#648DE6"
             width="100vw"
+            maxHeight="5rem"
             position="fixed"
             left={0}
             right={0}
@@ -37,7 +43,7 @@ const Navbar: React.FC = () => {
             //     }
             // }}
         >
-            <Box>
+            <Flex>
                 <Tooltip
                     label="Home"
                     sx={{
@@ -53,16 +59,20 @@ const Navbar: React.FC = () => {
                         variant="ghost"
                         color="white"
                         leftIcon={
-                            <Image src="src/assets/react.svg" alt="Home" />
+                            <Image
+                                className="logo"
+                                src="src/assets/TMUPREP.png"
+                                alt="Logo"
+                            />
                         }
                     ></Button>
                 </Tooltip>
-            </Box>
+            </Flex>
 
             <Spacer display={{ base: 'none', md: 'block' }} />
 
             {/* Second Box for the rest of the buttons */}
-            <Box>
+            <Flex gap={8}>
                 <Tooltip
                     label="Dashboard"
                     sx={{
@@ -75,11 +85,10 @@ const Navbar: React.FC = () => {
                     <Button
                         as="a"
                         href="/dashboard"
-                        variant="ghost"
+                        variant="link"
                         color="white"
-                        leftIcon={
-                            <Image src="src/assets/react.svg" alt="Dashboard" />
-                        }
+                        _hover={{ color: 'white' }}
+                        leftIcon={<AiFillHome size="2.8rem" />}
                     ></Button>
                 </Tooltip>
                 <Tooltip
@@ -94,11 +103,10 @@ const Navbar: React.FC = () => {
                     <Button
                         as="a"
                         href="/hub"
-                        variant="ghost"
+                        variant="link"
                         color="white"
-                        leftIcon={
-                            <Image src="src/assets/react.svg" alt="Hub" />
-                        }
+                        _hover={{ color: 'white' }}
+                        leftIcon={<AiOutlineSearch size="2.8rem" />}
                     ></Button>
                 </Tooltip>
                 <Tooltip
@@ -113,11 +121,10 @@ const Navbar: React.FC = () => {
                     <Button
                         as="a"
                         href="/about"
-                        variant="ghost"
+                        variant="link"
                         color="white"
-                        leftIcon={
-                            <Image src="src/assets/react.svg" alt="About" />
-                        }
+                        _hover={{ color: 'white' }}
+                        leftIcon={<AiFillBook size="3rem" />}
                     ></Button>
                 </Tooltip>
                 <Tooltip
@@ -132,18 +139,13 @@ const Navbar: React.FC = () => {
                     <Button
                         as="a"
                         href="/faq"
-                        variant="ghost"
+                        variant="link"
                         color="white"
-                        leftIcon={
-                            <Image src="src/assets/react.svg" alt="FAQ" />
-                        }
+                        _hover={{ color: 'white' }}
+                        leftIcon={<AiFillQuestionCircle size="3rem" />}
                     ></Button>
                 </Tooltip>
-            </Box>
-
-            <Box>
-                {/* Add your user authentication components or any other elements here */}
-            </Box>
+            </Flex>
         </Flex>
     )
 }
