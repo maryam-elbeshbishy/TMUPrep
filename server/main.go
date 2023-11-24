@@ -42,6 +42,7 @@ func main() {
 	}
 
 	scheduleRoute := router.Group("/schedule")
+	scheduleRoute.Use(middleware.UserAuthetication(mongoClient))
 	{
 		scheduleRoutes.Routes(scheduleRoute, mongoClient)
 	}
@@ -50,7 +51,6 @@ func main() {
 	{
 		courseRoutes.Routes(courseRoute, mongoClient)
 	}
-
 
 	router.Run()
 }
