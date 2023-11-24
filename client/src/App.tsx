@@ -13,6 +13,8 @@ import { auth } from './services/auth'
 import { axiosInstance } from './utils/axios'
 import Cookies from 'universal-cookie'
 
+import Navbar from './components/NavBar'
+
 function App() {
     const { state, dispatch } = useContext(GlobalContext)
     const cookies = new Cookies()
@@ -55,7 +57,12 @@ function App() {
         },
     ])
 
-    return <RouterProvider router={router} />
+    return (
+        <>
+            <Navbar />
+            <RouterProvider router={router} />
+        </>
+    )
 }
 
 export default App
