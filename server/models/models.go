@@ -15,10 +15,10 @@ type Course struct {
 
 // Create one enroll object everytime a user enrolls into a class.
 type Enrolled struct {
-	ID         primitive.ObjectID `json:"_id" bson:"_id"`
-	CourseID   string             `json:"courseId" bson:"courseId"`
-	ScheduleID primitive.ObjectID `json:"scheduleId" bson:"scheduleId"`
-	UserID     primitive.ObjectID `json:"userId" bson:"userId"`
+	ID         primitive.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
+	CourseID   string             `json:"courseID" bson:"courseID"`
+	ScheduleID primitive.ObjectID `json:"scheduleID" bson:"scheduleID"`
+	UserID     primitive.ObjectID `json:"userID" bson:"userID"`
 	Year       int
 	Term       int
 }
@@ -40,5 +40,5 @@ type Program struct {
 
 type Schedule struct {
 	// ID     primitive.ObjectID `bson:"_id, omitempty"`
-	UserID string
+	UserID primitive.ObjectID `json:"userID" bson:"userID"`
 }

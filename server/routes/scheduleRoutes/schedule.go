@@ -19,9 +19,9 @@ func Routes(router *gin.RouterGroup, mongoDB *mongo.Client) {
 		})
 	})
 
-	router.POST("/:schedule", func(c *gin.Context) {
+	router.POST("/", func(c *gin.Context) { // DONE
 		userID, _ := c.Get("userID")
-		schedule := models.Schedule{UserID: userID.(string)}
+		schedule := models.Schedule{UserID: userID.(primitive.ObjectID)}
 		scheduleObj, err := mongoDB.Database("tmuprep").Collection("schedules").InsertOne(c, schedule)
 
 		if err != nil {
@@ -33,7 +33,7 @@ func Routes(router *gin.RouterGroup, mongoDB *mongo.Client) {
 	})
 
 	// Enrollment: {ScheduleID: SID, course: "COURSE"}
-	router.PUT("/schedule/:scheduleID", func(c *gin.Context) {
+	router.POST("/:scheduleID", func(c *gin.Context) { //
 		type CourseRequest struct {
 			CourseID string `json:"courseID" bson:"courseID"`
 			Year     int    `json:"year" bson:"year"`
@@ -45,35 +45,38 @@ func Routes(router *gin.RouterGroup, mongoDB *mongo.Client) {
 
 		var request EnrollRequest
 		userID, _ := c.Get("userID")
-		var userPID, schedulePID primitive.ObjectID
+		var schedulePID primitive.ObjectID
 		var err error
-		if userPID, err = primitive.ObjectIDFromHex(userID.(string)); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"error": "Bad request :P",
-			})
-			return
-		}
+
 		if schedulePID, err = primitive.ObjectIDFromHex(c.Param("scheduleID")); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{
-				"error": "Bad request :P",
+				"error": err.Error(),
 			})
 			return
 		}
 		if err := c.BindJSON(&request); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{
-				"error": "Bad request :P",
+				"error": err.Error(),
 			})
 			return
 		}
 
 		var enrollmentList []interface{}
 		for _, element := range request.CourseList {
-			enrollmentList = append(enrollmentList, models.Enrolled{UserID: userPID, CourseID: element.CourseID, Year: element.Year, Term: element.Term, ScheduleID: schedulePID})
+			enrollmentList = append(enrollmentList, models.Enrolled{
+				UserID:     userID.(primitive.ObjectID),
+				CourseID:   element.CourseID,
+				Year:       element.Year,
+				Term:       element.Term,
+				ScheduleID: schedulePID})
 		}
 		mongoDB.Database("tmuprep").Collection("enrollments").InsertMany(c, enrollmentList)
+		c.JSON(http.StatusAccepted, gin.H{
+			"msg": "Courses enrolled successfully!",
+		})
 	})
 
-	router.GET("/:getSchedules", func(c *gin.Context) {
+	router.GET("/all", func(c *gin.Context) { // DONE
 		userID, _ := c.Get("userID")
 		coll := mongoDB.Database("tmuprep").Collection("schedules")
 		cursor, err := coll.Find(c, bson.D{{"userID", userID}})
@@ -91,18 +94,29 @@ func Routes(router *gin.RouterGroup, mongoDB *mongo.Client) {
 	})
 
 	// SCHEDULE ID, GET BACK COURSES[]
-	router.GET("/schedule/:scheduleID", func(c *gin.Context) {
+	router.GET("/:scheduleID", func(c *gin.Context) { // DONE
 		scheduleID := c.Param("scheduleID")
+		var schedulePID primitive.ObjectID
+		var err error
+
+		if schedulePID, err = primitive.ObjectIDFromHex(c.Param("scheduleID")); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": "Bad request :P",
+			})
+			return
+		}
+
 		userID, _ := c.Get("userID") // TODO
+		println(scheduleID)
 		var schedule models.Schedule
-		err := mongoDB.Database("tmuprep").Collection("schedules").FindOne(c, bson.D{{"scheduleID", scheduleID}, {"userID", userID}}).Decode(&schedule)
+		err = mongoDB.Database("tmuprep").Collection("schedules").FindOne(c, bson.D{{"_id", schedulePID}, {"userID", userID}}).Decode(&schedule)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"msg": "No Schedules found!"})
+			c.JSON(http.StatusBadRequest, gin.H{"msg": err.Error()})
 		}
 
 		// RETURN ALL DOCUMENTS FROM THAT SCHEDULE
 		coll := mongoDB.Database("tmuprep").Collection("enrollments")
-		cursor, err := coll.Find(c, bson.D{{"scheduleID", scheduleID}})
+		cursor, err := coll.Find(c, bson.D{{"scheduleID", schedulePID}})
 		var results []bson.M
 		if err != nil {
 			panic(err)
@@ -111,6 +125,7 @@ func Routes(router *gin.RouterGroup, mongoDB *mongo.Client) {
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"error": err.Error(),
 			})
+			c.Abort()
 		}
 		c.JSON(http.StatusOK, results)
 	})
