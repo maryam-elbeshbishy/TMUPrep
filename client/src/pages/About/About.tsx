@@ -1,8 +1,10 @@
 import React from 'react'
-import { Box, Flex, Text, Image, Grid } from '@chakra-ui/react'
+import { Flex, Text, Image, Grid } from '@chakra-ui/react'
 import StaffProfile from '../../components/About/StaffProfile'
 
 // TODO: Replace persons array with actual data of our staff
+
+const contentWidth = ['90vw', '80vw', '30vw']
 
 const persons = [
     {
@@ -53,18 +55,21 @@ const placeHolder =
     'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.'
 const About = () => {
     return (
-        <Box>
+        <Flex
+            mx={['0vw', '0vw', '0vw', '0vw', '20vw']}
+            flexDirection="column"
+            align="center"
+        >
             <Flex flexDirection="column" align="center">
-                <Text fontSize="6xl" as="b">
+                <Text fontSize={['3xl', '6xl']} as="b">
                     About TMUPrep
                 </Text>
-                <Image h="50vh" w="30vw" bg="gray"></Image>
-
-                <Text w="30vw">{placeHolder} </Text>
-                <Image h="50vh" w="30vw" bg="gray"></Image>
-                <Text w="30vw">{placeHolder} </Text>
-                <Image h="50vh" w="30vw" bg="gray"></Image>
-                <Text w="30vw">{placeHolder} </Text>
+                <Image h="50vh" w={contentWidth} bg="gray"></Image>
+                <Text w={contentWidth}>{placeHolder} </Text>
+                <Image h="50vh" w={contentWidth} bg="gray"></Image>
+                <Text w={contentWidth}>{placeHolder}</Text>
+                <Image h="50vh" w={contentWidth} bg="gray"></Image>
+                <Text w={contentWidth}>{placeHolder} </Text>
             </Flex>
             <Text align="center" fontSize="6xl" as="b">
                 Our Staff
@@ -91,21 +96,7 @@ const About = () => {
                     )
                 })}
             </Grid>
-            {/* <Flex align="center" flexWrap="wrap" gap={10}>
-                <StaffProfile
-                    imageSrc="https://bit.ly/dan-abramov"
-                    firstName="Dan"
-                    lastName="Abramov"
-                    description="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
-                />
-                <StaffProfile
-                    imageSrc="https://bit.ly/dan-abramov"
-                    firstName="Dan"
-                    lastName="Abramov"
-                    description="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
-                />
-            </Flex> */}
-        </Box>
+        </Flex>
     )
 }
 
