@@ -13,7 +13,7 @@ import {
     AiOutlineSearch,
 } from 'react-icons/ai'
 
-const Navbar: React.FC = () => {
+const NavBar: React.FC = () => {
     // const breakpoints = {
     //     sm: 0,
     //     md: undefined
@@ -25,7 +25,7 @@ const Navbar: React.FC = () => {
             py="1rem"
             backgroundColor="#648DE6"
             width="100vw"
-            maxHeight="5rem"
+            height="80px"
             position="fixed"
             left={0}
             right={0}
@@ -49,11 +49,13 @@ const Navbar: React.FC = () => {
                         variant="ghost"
                         color="white"
                         _hover={{ bg: 'none' }}
-                        leftIcon={
+                        h="100%"
+                        children={
                             <Image
                                 className="logo"
                                 src="src/assets/TMUPREP.png"
                                 alt="Logo"
+                                h="100%"
                             />
                         }
                     ></Button>

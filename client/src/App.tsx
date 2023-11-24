@@ -14,7 +14,6 @@ import { axiosInstance } from './utils/axios'
 import Cookies from 'universal-cookie'
 
 import Navbar from './components/NavBar'
-import { Fragment } from 'react'
 
 function App() {
     const { state, dispatch } = useContext(GlobalContext)
@@ -59,10 +58,10 @@ function App() {
     ])
 
     return (
-        <Fragment>
+        <>
             <Navbar />
             <RouterProvider router={router} />
-        </Fragment>
+        </>
     )
 }
 
