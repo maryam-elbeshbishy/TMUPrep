@@ -32,18 +32,8 @@ const Navbar: React.FC = () => {
             bottom={[0, 'auto']}
             top={['auto', 0]}
             zIndex="sticky"
-            // sx={{
-            //     '@media screen and (max-width: 48em)': {
-            //         bottom: 0,
-            //         top: 'auto',
-            //     },
-            //     '@media screen and (min-width: 48em)': {
-            //         top: 0,
-            //         bottom: 'auto',
-            //     }
-            // }}
         >
-            <Flex>
+            <Flex display={{ base: 'none', sm: 'block' }}>
                 <Tooltip
                     label="Home"
                     sx={{
@@ -58,6 +48,7 @@ const Navbar: React.FC = () => {
                         href="/"
                         variant="ghost"
                         color="white"
+                        _hover={{ bg: 'none' }}
                         leftIcon={
                             <Image
                                 className="logo"
@@ -69,12 +60,12 @@ const Navbar: React.FC = () => {
                 </Tooltip>
             </Flex>
 
-            <Spacer display={{ base: 'none', md: 'block' }} />
+            <Spacer display={{ base: 'none', sm: 'block' }} />
 
             {/* Second Box for the rest of the buttons */}
-            <Flex gap={8}>
+            <Flex flex="1" justify={{ base: 'center', sm: 'flex-end' }} gap={8}>
                 <Tooltip
-                    label="Dashboard"
+                    label="Home"
                     sx={{
                         bgColor: '#FFECA8',
                         color: 'black',
@@ -92,7 +83,7 @@ const Navbar: React.FC = () => {
                     ></Button>
                 </Tooltip>
                 <Tooltip
-                    label="Hub"
+                    label="Courses"
                     sx={{
                         bgColor: '#FFECA8',
                         color: 'black',
@@ -110,6 +101,24 @@ const Navbar: React.FC = () => {
                     ></Button>
                 </Tooltip>
                 <Tooltip
+                    label="Dashboard"
+                    sx={{
+                        bgColor: '#FFECA8',
+                        color: 'black',
+                        padding: '0.5rem',
+                        borderRadius: 'md',
+                    }}
+                >
+                    <Button
+                        as="a"
+                        href="/dashboard"
+                        variant="link"
+                        color="white"
+                        _hover={{ color: 'white' }}
+                        leftIcon={<AiFillBook size="3rem" />}
+                    ></Button>
+                </Tooltip>
+                <Tooltip
                     label="About"
                     sx={{
                         bgColor: '#FFECA8',
@@ -121,24 +130,6 @@ const Navbar: React.FC = () => {
                     <Button
                         as="a"
                         href="/about"
-                        variant="link"
-                        color="white"
-                        _hover={{ color: 'white' }}
-                        leftIcon={<AiFillBook size="3rem" />}
-                    ></Button>
-                </Tooltip>
-                <Tooltip
-                    label="FAQ"
-                    sx={{
-                        bgColor: '#FFECA8',
-                        color: 'black',
-                        padding: '0.5rem',
-                        borderRadius: 'md',
-                    }}
-                >
-                    <Button
-                        as="a"
-                        href="/faq"
                         variant="link"
                         color="white"
                         _hover={{ color: 'white' }}
