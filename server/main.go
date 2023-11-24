@@ -10,6 +10,8 @@ import (
 	"tmuprep/routes/userRoutes"
 
 	"github.com/gin-gonic/gin"
+
+	"github.com/gin-contrib/cors"
 )
 
 var mongoClient, err = configs.ConnectToMongodb()
@@ -28,6 +30,11 @@ func main() {
 			"message": "Hello World",
 		})
 	})
+
+	router.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"*"},
+		AllowHeaders:     []string{"Content-Type","Access-Control-Allow-Headers","Authorization"},
+	  }))
 
 	userRoute := router.Group("/")
 	{

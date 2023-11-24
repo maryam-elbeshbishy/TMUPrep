@@ -9,7 +9,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 func Routes(router *gin.RouterGroup, mongoDB *mongo.Client) {
@@ -19,6 +18,7 @@ func Routes(router *gin.RouterGroup, mongoDB *mongo.Client) {
 
 		limit, _ := strconv.Atoi(l)
 		page, _ := strconv.Atoi(p)
+		page = page - 1
 
 		count, err := mongoDB.Database("tmuprep").Collection("courses").EstimatedDocumentCount(c)
 		if err != nil {
@@ -30,7 +30,7 @@ func Routes(router *gin.RouterGroup, mongoDB *mongo.Client) {
 		}
 		var numberOfPages float64
 		if limit > 0 {
-			numberOfPages = math.Ceil((float64(count) / float64(limit)) - 1)
+			numberOfPages = math.Ceil((float64(count) / float64(limit)))
 
 			if float64(page) > float64(numberOfPages) {
 				c.JSON(http.StatusInternalServerError, gin.H{
@@ -41,11 +41,44 @@ func Routes(router *gin.RouterGroup, mongoDB *mongo.Client) {
 			}
 		}
 
-		paginationOptions := options.Find().SetLimit(int64(limit)).SetSkip(int64(page)*int64(limit))
-
 		var courses []models.Course
 
-		cursor, err := mongoDB.Database("tmuprep").Collection("courses").Find(c, bson.D{{}}, paginationOptions)
+		pipeline := mongo.Pipeline{
+			{{"$lookup", bson.D{
+				{"from", "antirequisites"},
+				{"localField", "courseCode"},
+				{"foreignField", "courseCode"},
+				{"as", "antirequisites"},
+			}}},
+			{{"$lookup", bson.D{
+				{"from", "prerequisites"},
+				{"localField", "courseCode"},
+				{"foreignField", "courseCode"},
+				{"as", "prerequisites"},
+			}}},
+			{{"$addFields", bson.D{
+				{"antirequisites", bson.D{
+					{"$map", bson.D{
+						{"input", "$antirequisites"},
+						{"as", "antirequisites"},
+						{"in", "$$antirequisites.antirequisite"},
+					}},
+				}},
+			}}},
+			{{"$addFields", bson.D{
+				{"prerequisites", bson.D{
+					{"$map", bson.D{
+						{"input", "$prerequisites"},
+						{"as", "prerequisites"},
+						{"in", "$$prerequisites.prerequisite"},
+					}},
+				}},
+			}}},
+			{{"$skip", int64(page) * int64(limit)}},
+			{{"$limit", int64(limit)}},
+		}
+
+		cursor, err := mongoDB.Database("tmuprep").Collection("courses").Aggregate(c, pipeline)
 
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
