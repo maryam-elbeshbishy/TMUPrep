@@ -50,3 +50,9 @@ type Schedule struct {
 	Name         string             `json:"name" bson:"name"`
 	Requirements []Requirement      `json:"requirements" bson:"requirements"`
 }
+
+type Table struct {
+	ID            primitive.ObjectID `json:"_id" bson:"_id"`
+	CourseID      primitive.ObjectID `json:"courseId" bson:"courseId"`
+	RequirementID primitive.ObjectID `json:"requirementId" bson:"requirementId"`
+}

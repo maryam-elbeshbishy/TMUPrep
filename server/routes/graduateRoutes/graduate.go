@@ -118,46 +118,65 @@ func Routes(router *gin.RouterGroup, mongoDB *mongo.Client) {
 
 		var graduate []Graduate
 
+		var requirementIDs []primitive.ObjectID
+
 		for _, requirement := range program.Requirements {
 			graduate = append(graduate, Graduate{requirement.ID, requirement.Name, false, requirement.NumCourses})
+			requirementIDs = append(requirementIDs, requirement.ID)
 		}
 
 		for _, enrollment := range enrolled {
+			var course models.Course
+
+			err = database.Collection("courses").FindOne(c, bson.D{{"courseCode", enrollment.CourseID}}).Decode(&course)
+
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{
+					"error": err.Error(),
+				})
+				return
+			}
+
+			var result []models.Table
+
+			filter := bson.M{"requirementId": bson.M{"$in": requirementIDs}, "courseId": course.ID}
+
+			cursor, _ = database.Collection("table").Find(c, filter)
+
+			if err = cursor.All(c, &result); err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{
+					"error": err.Error(),
+				})
+			}
+
 			for index, req := range graduate {
-				if !req.Completed {
-					var course models.Course
-
-					err = database.Collection("courses").FindOne(c, bson.D{{"courseCode", enrollment.CourseID}}).Decode(&course)
-
-					if err != nil {
-						c.JSON(http.StatusInternalServerError, gin.H{
-							"error": err.Error(),
-						})
-						return
-					}
-
-					var result interface{}
-
-					_ = database.Collection("table").FindOne(c, bson.D{{"_id", req.ID}, {"courseId", course.ID}}).Decode(&result)
-
-					if result != nil {
+				for _, r := range result {
+					if req.ID == r.RequirementID && !req.Completed {
 						graduate[index].Missing = graduate[index].Missing - 1
-						if graduate[index].Missing == 0 {
-							graduate[index].Completed = true
-						}
-						return
+					}
+					if graduate[index].Missing == 0 {
+						graduate[index].Completed = true
 					}
 				}
 			}
 		}
 
-		c.JSON(200, gin.H{
+		for _, grad := range graduate {
+			if !grad.Completed {
+				canGraduate = false
+			}
+		}
+
+		if len(enrolled) >= 40 && canGraduate {
+			c.JSON(http.StatusAccepted, gin.H{
+				"canGraduate": canGraduate,
+			})
+			return
+		}
+
+		c.JSON(http.StatusAccepted, gin.H{
 			"canGraduate": canGraduate,
-			"userID":      userID,
-			"scheduleID":  scheduleID,
 			"graduate":    graduate,
-			"enrolled":    enrolled,
-			"program":     program,
 		})
 	})
 }
