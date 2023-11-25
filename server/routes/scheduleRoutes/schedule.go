@@ -76,6 +76,38 @@ func Routes(router *gin.RouterGroup, mongoDB *mongo.Client) {
 		})
 	})
 
+	// Drop Course: {ScheduleID: SID, course: "COURSE"}
+	router.DELETE("/:scheduleID", func(c *gin.Context) { //
+
+		type CourseRequest struct {
+			CourseID string `json:"courseID" bson:"courseID"`
+		}
+
+		var requestData CourseRequest
+		userID, _ := c.Get("userID")
+		var schedulePID primitive.ObjectID
+		var err error
+
+		if schedulePID, err = primitive.ObjectIDFromHex(c.Param("scheduleID")); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+		if err := c.BindJSON(&requestData); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+
+		mongoDB.Database("tmuprep").Collection("enrollments").DeleteOne(c, bson.M{"scheduleID": schedulePID, "userID": userID, "courseID": requestData.CourseID})
+
+		c.JSON(http.StatusAccepted, gin.H{
+			"msg": "Courses dropped successfully!",
+		})
+	})
+
 	router.GET("/all", func(c *gin.Context) { // DONE
 		userID, _ := c.Get("userID")
 		coll := mongoDB.Database("tmuprep").Collection("schedules")
