@@ -36,6 +36,7 @@ type Requirement struct {
 	Name       string             `json:"name" bson:"name"`
 	NumCourses int                `json:"num_courses" bson:"num_courses"`
 	Optional   bool               `json:"optional" bson:"optional"`
+	Priority   int                `json:"priority" bson:"priority"`
 }
 
 type Program struct {

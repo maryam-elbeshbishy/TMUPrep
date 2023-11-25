@@ -2,6 +2,7 @@ package graduateRoutes
 
 import (
 	"net/http"
+	"reflect"
 	"tmuprep/models"
 
 	"github.com/gin-gonic/gin"
@@ -68,6 +69,9 @@ func Routes(router *gin.RouterGroup, mongoDB *mongo.Client) {
 				{"localField", "_id"},
 				{"foreignField", "programs"},
 				{"as", "requirements"},
+				{"pipeline", bson.A{
+					bson.D{{"$sort", bson.D{{"priority", 1}}}},
+				}},
 			}}},
 			{{"$addFields", bson.D{
 				{"requirements", bson.D{
@@ -100,30 +104,16 @@ func Routes(router *gin.RouterGroup, mongoDB *mongo.Client) {
 		}
 
 		// Compare both
-		canGraduate := false
-
-		// //check pre and anti
-		// var schedule [][]string
-		// var temp []string
-
-		// for index, enrollment := range enrolled {
-		// 	if index != 0 && (enrolled[index-1].Term != enrollment.Term || enrolled[index-1].Year != enrollment.Year) {
-		// 		schedule = append(schedule, temp)
-		// 		temp = []string{}
-		// 	}
-		// 	temp = append(temp, enrollment.CourseID)
-		// }
-
-		// schedule = append(schedule, temp)
-
 		var graduate []Graduate
 
 		var requirementIDs []primitive.ObjectID
 
 		for _, requirement := range program.Requirements {
-			graduate = append(graduate, Graduate{requirement.ID, requirement.Name, false, requirement.NumCourses})
+			graduate = append(graduate, Graduate{requirement.ID, requirement.Name, !(requirement.NumCourses > 0), requirement.NumCourses})
 			requirementIDs = append(requirementIDs, requirement.ID)
 		}
+
+		var open []models.Enrolled
 
 		for _, enrollment := range enrolled {
 			var course models.Course
@@ -149,17 +139,28 @@ func Routes(router *gin.RouterGroup, mongoDB *mongo.Client) {
 				})
 			}
 
+			tempGraduate := make([]Graduate, len(graduate))
+			copy(tempGraduate, graduate)
+
 			for index, req := range graduate {
-				for _, r := range result {
-					if req.ID == r.RequirementID && !req.Completed {
-						graduate[index].Missing = graduate[index].Missing - 1
-					}
+				if containsValue(result, req.ID) && !req.Completed {
+					graduate[index].Missing -= 1
+
 					if graduate[index].Missing == 0 {
 						graduate[index].Completed = true
 					}
+
+					break
 				}
 			}
+
+			isEqual := reflect.DeepEqual(graduate, tempGraduate)
+			if isEqual {
+				open = append(open, enrollment)
+			}
 		}
+
+		canGraduate := true
 
 		for _, grad := range graduate {
 			if !grad.Completed {
@@ -167,16 +168,36 @@ func Routes(router *gin.RouterGroup, mongoDB *mongo.Client) {
 			}
 		}
 
-		if len(enrolled) >= 40 && canGraduate {
-			c.JSON(http.StatusAccepted, gin.H{
+		if len(open) >= 4 && canGraduate {
+			c.JSON(http.StatusOK, gin.H{
 				"canGraduate": canGraduate,
 			})
 			return
 		}
 
-		c.JSON(http.StatusAccepted, gin.H{
-			"canGraduate": canGraduate,
-			"graduate":    graduate,
+		c.JSON(http.StatusOK, gin.H{
+			"canGraduate":  canGraduate,
+			"requirements": removeCompleted(append(graduate, Graduate{primitive.NilObjectID, "Open Electives", false, 4 - len(open)})),
 		})
 	})
+}
+
+func containsValue(arr []models.Table, valueToCheck primitive.ObjectID) bool {
+	for _, v := range arr {
+		if v.RequirementID == valueToCheck {
+			return true
+		}
+	}
+	return false
+}
+
+func removeCompleted(grad []Graduate) []Graduate {
+	var result []Graduate
+	for _, g := range grad {
+		if !g.Completed {
+			result = append(result, g)
+		}
+	}
+
+	return result
 }
