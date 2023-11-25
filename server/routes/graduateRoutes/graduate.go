@@ -177,7 +177,7 @@ func Routes(router *gin.RouterGroup, mongoDB *mongo.Client) {
 
 		c.JSON(http.StatusOK, gin.H{
 			"canGraduate":  canGraduate,
-			"requirements": removeCompleted(append(graduate, Graduate{primitive.NilObjectID, "Open Electives", false, 4 - len(open)})),
+			"requirements": removeCompleted(append(graduate, Graduate{primitive.NilObjectID, "Open Electives", len(open) >= 4, 4 - len(open)})),
 		})
 	})
 }
