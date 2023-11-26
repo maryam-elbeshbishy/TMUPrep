@@ -139,9 +139,27 @@ const NavBar: React.FC = () => {
                         leftIcon={<AiFillQuestionCircle size="3rem" />}
                     ></Button>
                 </Tooltip>
-                <Button mr="10px" mt="3px" onClick={logOut}>
-                    Log out
-                </Button>
+                <Tooltip
+                    label="Log Out"
+                    sx={{
+                        bgColor: '#FFECA8',
+                        color: 'black',
+                        padding: '0.5rem',
+                        borderRadius: 'md',
+                    }}
+                >
+                    <Button
+                        as="a"
+                        href="/"
+                        variant="link"
+                        color="white"
+                        _hover={{ color: 'white' }}
+                        onClick={logOut}
+                        pr="1rem"
+                    >
+                        Log Out
+                    </Button>
+                </Tooltip>
             </Flex>
         </Flex>
     )
