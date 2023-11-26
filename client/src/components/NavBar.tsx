@@ -77,7 +77,7 @@ const NavBar: React.FC = () => {
                 >
                     <Button
                         as="a"
-                        href="/dashboard"
+                        href="/"
                         variant="link"
                         color="white"
                         _hover={{ color: 'white' }}
@@ -95,7 +95,7 @@ const NavBar: React.FC = () => {
                 >
                     <Button
                         as="a"
-                        href="/hub"
+                        href="/coursehub"
                         variant="link"
                         color="white"
                         _hover={{ color: 'white' }}
