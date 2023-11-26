@@ -1,6 +1,7 @@
 package scheduleRoutes
 
 import (
+	"fmt"
 	"net/http"
 	"tmuprep/models"
 
@@ -82,7 +83,7 @@ func Routes(router *gin.RouterGroup, mongoDB *mongo.Client) {
 	router.DELETE("/:scheduleID", func(c *gin.Context) { //
 
 		type CourseRequest struct {
-			CourseID string `json:"courseID" bson:"courseID"`
+			CourseID []string `json:"courseID" bson:"courseID"`
 		}
 
 		var requestData CourseRequest
@@ -103,7 +104,10 @@ func Routes(router *gin.RouterGroup, mongoDB *mongo.Client) {
 			return
 		}
 
-		mongoDB.Database("tmuprep").Collection("enrollments").DeleteOne(c, bson.M{"scheduleID": schedulePID, "userID": userID, "courseID": requestData.CourseID})
+		for _, element := range requestData.CourseID {
+			fmt.Println(element);
+			mongoDB.Database("tmuprep").Collection("enrollments").DeleteOne(c, bson.M{"scheduleID": schedulePID, "userID": userID, "courseID": element})
+		}
 
 		c.JSON(http.StatusAccepted, gin.H{
 			"msg": "Courses dropped successfully!",
