@@ -6,6 +6,7 @@ import {
     AccordionPanel,
     Box,
     Flex,
+    Text,
 } from '@chakra-ui/react'
 
 type CourseProps = {
@@ -16,28 +17,33 @@ type CourseProps = {
 
 function Course({ courseCode, courseName, courseDesc }: CourseProps) {
     return (
-        <Flex overflow="hidden" maxW="600px">
-            <Box bg="success" borderLeftRadius="5px" p="5px 20px">
-                {courseCode.substring(0, 3)}
-                <Box as="br" />
-                {courseCode.substring(3, 6)}
+        <Flex overflow="hidden">
+            <Box bg="success" borderLeftRadius="10px" p="5px 20px">
+                <Text fontSize="2xl">{courseCode.substring(0, 3)}</Text>
+                <Text fontSize="2xl">{courseCode.substring(3, 6)}</Text>
             </Box>
             <Accordion
                 allowMultiple
                 bg="surface.dark"
                 width="100%"
-                borderRightRadius="5px"
+                borderRightRadius="10px"
                 borderColor="surface.dark"
             >
-                <AccordionItem borderRightRadius="5px">
-                    <AccordionButton pt="16px">
+                <AccordionItem borderRightRadius="10px">
+                    <AccordionButton
+                        pt="15px"
+                        fontSize="2.5rem"
+                        color="accent.main"
+                    >
                         <Box as="span" flex="1" textAlign="left">
-                            {courseName}
+                            <Text fontSize="2xl" color="gray.800">
+                                {courseName}
+                            </Text>
                         </Box>
                         <AccordionIcon />
                     </AccordionButton>
                     <AccordionPanel pb={4} textAlign="left">
-                        {courseDesc}
+                        <Text fontSize="lg">{courseDesc}</Text>
                     </AccordionPanel>
                 </AccordionItem>
             </Accordion>

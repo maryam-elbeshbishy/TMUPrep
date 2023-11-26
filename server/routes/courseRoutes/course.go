@@ -8,6 +8,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -15,6 +16,7 @@ func Routes(router *gin.RouterGroup, mongoDB *mongo.Client) {
 	router.GET("", func(c *gin.Context) {
 		l, _ := c.GetQuery("limit")
 		p, _ := c.GetQuery("page")
+		search, _ := c.GetQuery("search")
 
 		limit, _ := strconv.Atoi(l)
 		page, _ := strconv.Atoi(p)
@@ -44,6 +46,7 @@ func Routes(router *gin.RouterGroup, mongoDB *mongo.Client) {
 		var courses []models.Course
 
 		pipeline := mongo.Pipeline{
+			{{"$match", bson.D{{"courseCode", primitive.Regex{Pattern: search, Options: "i"}}}}},
 			{{"$lookup", bson.D{
 				{"from", "antirequisites"},
 				{"localField", "courseCode"},
