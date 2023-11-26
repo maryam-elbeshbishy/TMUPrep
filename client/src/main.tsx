@@ -12,8 +12,8 @@ const customTheme = extendTheme({
             dark: '#004C9B',
         },
         secondary: {
-            main: '#FFDC00',
-            dark: '#FFECA8',
+            main: '#FFECA8',
+            dark: '#FFDC00',
         },
         accent: {
             main: '#4D6285',
