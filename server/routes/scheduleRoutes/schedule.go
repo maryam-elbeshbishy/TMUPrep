@@ -1,7 +1,6 @@
 package scheduleRoutes
 
 import (
-	"fmt"
 	"net/http"
 	"tmuprep/models"
 
@@ -71,7 +70,7 @@ func Routes(router *gin.RouterGroup, mongoDB *mongo.Client) {
 				Term:       element.Term,
 				ScheduleID: schedulePID})
 		}
-		
+
 		mongoDB.Database("tmuprep").Collection("enrollments").InsertMany(c, enrollmentList)
 
 		c.JSON(http.StatusAccepted, gin.H{
@@ -104,11 +103,8 @@ func Routes(router *gin.RouterGroup, mongoDB *mongo.Client) {
 			return
 		}
 
-		for _, element := range requestData.CourseID {
-			fmt.Println(element);
-			mongoDB.Database("tmuprep").Collection("enrollments").DeleteOne(c, bson.M{"scheduleID": schedulePID, "userID": userID, "courseID": element})
-		}
-
+		filter := bson.M{"scheduleID": schedulePID, "userID": userID, "courseID": bson.M{"$in": requestData.CourseID}}
+		mongoDB.Database("tmuprep").Collection("enrollments").DeleteMany(c, filter)
 		c.JSON(http.StatusAccepted, gin.H{
 			"msg": "Courses dropped successfully!",
 		})
