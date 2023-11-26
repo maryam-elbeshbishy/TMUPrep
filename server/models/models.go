@@ -48,7 +48,6 @@ type Program struct {
 }
 
 type Schedule struct {
-	ID           primitive.ObjectID `json:"_id" bson:"_id"`
 	UserID       primitive.ObjectID `json:"userID" bson:"userID"`
 }
 
