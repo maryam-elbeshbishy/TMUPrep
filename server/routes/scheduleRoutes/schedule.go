@@ -70,7 +70,7 @@ func Routes(router *gin.RouterGroup, mongoDB *mongo.Client) {
 				Term:       element.Term,
 				ScheduleID: schedulePID})
 		}
-		
+
 		mongoDB.Database("tmuprep").Collection("enrollments").InsertMany(c, enrollmentList)
 
 		c.JSON(http.StatusAccepted, gin.H{
@@ -82,7 +82,7 @@ func Routes(router *gin.RouterGroup, mongoDB *mongo.Client) {
 	router.DELETE("/:scheduleID", func(c *gin.Context) { //
 
 		type CourseRequest struct {
-			CourseID string `json:"courseID" bson:"courseID"`
+			CourseID []string `json:"courseID" bson:"courseID"`
 		}
 
 		var requestData CourseRequest
@@ -103,8 +103,8 @@ func Routes(router *gin.RouterGroup, mongoDB *mongo.Client) {
 			return
 		}
 
-		mongoDB.Database("tmuprep").Collection("enrollments").DeleteOne(c, bson.M{"scheduleID": schedulePID, "userID": userID, "courseID": requestData.CourseID})
-
+		filter := bson.M{"scheduleID": schedulePID, "userID": userID, "courseID": bson.M{"$in": requestData.CourseID}}
+		mongoDB.Database("tmuprep").Collection("enrollments").DeleteMany(c, filter)
 		c.JSON(http.StatusAccepted, gin.H{
 			"msg": "Courses dropped successfully!",
 		})
