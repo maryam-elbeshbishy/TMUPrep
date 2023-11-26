@@ -54,7 +54,7 @@ function App() {
         },
         {
             path: '/dashboard',
-            element: <Dashboard />,
+            element: <Protected children={<Dashboard />} />,
         },
         {
             path: '/coursehub',
