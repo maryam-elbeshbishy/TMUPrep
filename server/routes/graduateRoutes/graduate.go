@@ -9,7 +9,6 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type Graduate struct {
@@ -37,14 +36,46 @@ func Routes(router *gin.RouterGroup, mongoDB *mongo.Client) {
 
 		schedulePID, err := primitive.ObjectIDFromHex(scheduleID)
 
-		sortFields := bson.D{
-			{"year", 1},
-			{"term", 1},
+		schedulePipeline := mongo.Pipeline{
+			{{"$match", bson.D{
+				{"userID", userID},
+				{"scheduleID", schedulePID},
+			}}},
+			{{"$sort", bson.D{
+				{"year", 1},
+				{"term", 1},
+			}}},
+			{{"$lookup", bson.D{
+				{"from", "antirequisites"},
+				{"localField", "courseID"},
+				{"foreignField", "courseCode"},
+				{"as", "antirequisites"},
+			}}},
+			{{"$lookup", bson.D{
+				{"from", "prerequisites"},
+				{"localField", "courseID"},
+				{"foreignField", "courseCode"},
+				{"as", "prerequisites"},
+			}}},
+			{{"$addFields", bson.D{
+				{"antirequisites", bson.D{
+					{"$map", bson.D{
+						{"input", "$antirequisites"},
+						{"as", "antirequisites"},
+						{"in", "$$antirequisites.antirequisite"},
+					}},
+				}},
+				{"prerequisites", bson.D{
+					{"$map", bson.D{
+						{"input", "$prerequisites"},
+						{"as", "prerequisites"},
+						{"in", "$$prerequisites.prerequisite"},
+					}},
+				}},
+			}}},
 		}
 
-		options := options.Find().SetSort(sortFields)
-
-		cursor, err := database.Collection("enrollments").Find(c, bson.D{{"userID", userID}, {"scheduleID", schedulePID}}, options)
+		cursor, err := database.Collection("enrollments").Aggregate(c, schedulePipeline)
 
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
@@ -59,6 +90,7 @@ func Routes(router *gin.RouterGroup, mongoDB *mongo.Client) {
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"error": err.Error(),
 			})
+			return
 		}
 
 		// Get requirements
@@ -103,7 +135,46 @@ func Routes(router *gin.RouterGroup, mongoDB *mongo.Client) {
 			return
 		}
 
-		// Compare both
+		// Check for anti and pre requisites
+		var antiProblem, preProblem []models.Enrolled
+
+		// Grab pre and anti and make sure user has/hasn't it in previous years
+		for _, course := range enrolled {
+			if len(course.Antirequisites) == 0 && len(course.Prerequisites) == 0 {
+				continue
+			}
+
+			pre := course.Prerequisites
+
+			for _, c := range enrolled {
+				if c.Year > course.Year || (c.Term > course.Term && c.Year == course.Year) {
+					break
+				}
+
+				if len(course.Prerequisites) > 0 && checkValueInEnrolled(pre, c.CourseID) {
+					pre = removeElement(pre, c.CourseID)
+				}
+
+				if len(course.Antirequisites) > 0 && checkValueInEnrolled(course.Antirequisites, c.CourseID) {
+					antiProblem = append(antiProblem, course)
+				}
+			}
+
+			if len(course.Prerequisites) > 0 && reflect.DeepEqual(course.Prerequisites, pre) {
+				preProblem = append(preProblem, course)
+			}
+		}
+
+		if len(preProblem) > 0 && len(antiProblem) > 0 {
+			c.JSON(http.StatusOK, gin.H{
+				"canGraduate":   false,
+				"antirequisite": antiProblem,
+				"prerequisite":  preProblem,
+			})
+			return
+		}
+
+		// Check if enrollments fulfill program requirements
 		var graduate []Graduate
 
 		var requirementIDs []primitive.ObjectID
@@ -137,6 +208,7 @@ func Routes(router *gin.RouterGroup, mongoDB *mongo.Client) {
 				c.JSON(http.StatusInternalServerError, gin.H{
 					"error": err.Error(),
 				})
+				return
 			}
 
 			tempGraduate := make([]Graduate, len(graduate))
@@ -196,6 +268,27 @@ func removeCompleted(grad []Graduate) []Graduate {
 	for _, g := range grad {
 		if !g.Completed {
 			result = append(result, g)
+		}
+	}
+
+	return result
+}
+
+func checkValueInEnrolled(arr []string, valueToCheck string) bool {
+	for _, v := range arr {
+		if v == valueToCheck {
+			return true
+		}
+	}
+	return false
+}
+
+func removeElement(arr []string, elementToRemove string) []string {
+	var result []string
+
+	for _, value := range arr {
+		if value != elementToRemove {
+			result = append(result, value)
 		}
 	}
 
