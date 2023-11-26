@@ -12,6 +12,7 @@ import {
     AiFillQuestionCircle,
     AiOutlineSearch,
 } from 'react-icons/ai'
+import { logOut } from '../services/auth'
 
 const NavBar: React.FC = () => {
     // const breakpoints = {
@@ -138,6 +139,9 @@ const NavBar: React.FC = () => {
                         leftIcon={<AiFillQuestionCircle size="3rem" />}
                     ></Button>
                 </Tooltip>
+                <Button mr="10px" mt="3px" onClick={logOut}>
+                    Log out
+                </Button>
             </Flex>
         </Flex>
     )

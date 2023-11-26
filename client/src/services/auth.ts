@@ -6,26 +6,18 @@ import {
     signOut,
 } from '@firebase/auth'
 import app from '../utils/firebase'
-import Cookies from 'universal-cookie'
 import { axiosInstance } from '../utils/axios'
 
 const provider = new GoogleAuthProvider()
 export const auth = getAuth(app)
-const cookies = new Cookies()
 
 export const logIn = async () => {
     signInWithRedirect(auth, provider)
-    getRedirectResult(auth)
-        .then(async result => {
-            const user = result?.user
-            console.log('sign in successfull!')
-            if (user) await fetchJWT(user.uid)
-        })
-        .catch(error => {
-            const errorCode = error.code
-            const errorMessage = error.message
-            console.log(errorCode, errorMessage)
-        })
+    getRedirectResult(auth).catch(error => {
+        const errorCode = error.code
+        const errorMessage = error.message
+        console.log(errorCode, errorMessage)
+    })
 }
 
 export const logOut = () => {
@@ -38,14 +30,12 @@ export const logOut = () => {
         })
 }
 
-const fetchJWT = async (googleID: string) => {
-    axiosInstance
-        .post('/login', { googleID: googleID })
-        .then(res => {
-            console.log(res.data)
-            cookies.set('jwt', res.data['jwt'])
-        })
-        .catch(error => {
-            console.log(error)
-        })
+export const fetchJWT = async (googleID: string) => {
+    try {
+        const res = await axiosInstance.post('/login', { googleID: googleID })
+        return res.data['jwt']
+    } catch (error) {
+        console.log(error)
+        return null
+    }
 }
