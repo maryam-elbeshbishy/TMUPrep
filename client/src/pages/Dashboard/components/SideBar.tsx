@@ -1,5 +1,6 @@
 import { Box, VStack, Input } from '@chakra-ui/react'
 import CourseSearchOption from './CourseSearchOptions.tsx'
+import Pagination from '../../../components/Pagination.tsx'
 import Cookies from 'universal-cookie'
 import axios from 'axios'
 import { useState, useEffect } from 'react'
@@ -15,21 +16,29 @@ interface CourseType {
 const Sidebar = () => {
     const cookies = new Cookies()
     const [courses, setCourses] = useState<CourseType[]>([])
+    const [search] = useState<string>('')
+    const [page, setPage] = useState<number>(1)
+    const [totalPages, setTotalPages] = useState<number>(0)
+    const [limit] = useState<number>(10)
     useEffect(() => {
         // Fetch courses from the endpoint
         axios
-            .get('http://localhost:8080/course?limit=10&page=1', {
-                headers: {
-                    Authorization: cookies.get('jwt'),
+            .get(
+                `http://localhost:8080/course?limit=${limit}&page=${page}&search=${search}`,
+                {
+                    headers: {
+                        Authorization: cookies.get('jwt'),
+                    },
                 },
-            })
+            )
             .then(response => {
                 setCourses(response.data.courses)
+                setTotalPages(response.data.numberOfPages)
             })
             .catch(error => {
                 console.error('Error fetching courses:', error)
             })
-    }, [])
+    }, [page, search])
     const displayCourses = () => {
         return courses.map(course => {
             return (
@@ -57,6 +66,12 @@ const Sidebar = () => {
                 />
 
                 {displayCourses()}
+
+                <Pagination
+                    totalPages={totalPages}
+                    currentPage={page}
+                    onPageChange={setPage}
+                />
             </VStack>
         </Box>
     )
