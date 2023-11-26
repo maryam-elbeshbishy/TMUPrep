@@ -70,7 +70,9 @@ func Routes(router *gin.RouterGroup, mongoDB *mongo.Client) {
 				Term:       element.Term,
 				ScheduleID: schedulePID})
 		}
+		
 		mongoDB.Database("tmuprep").Collection("enrollments").InsertMany(c, enrollmentList)
+
 		c.JSON(http.StatusAccepted, gin.H{
 			"msg": "Courses enrolled successfully!",
 		})
