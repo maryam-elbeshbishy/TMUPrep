@@ -4,9 +4,17 @@ import Cookies from 'universal-cookie'
 import axios from 'axios'
 import { useState, useEffect } from 'react'
 
+interface CourseType {
+    courseCode: string
+    title: string
+    description: string
+    prerequisites: string[]
+    antirequisites: string[]
+}
+
 const Sidebar = () => {
     const cookies = new Cookies()
-    const [courses, setCourses] = useState([])
+    const [courses, setCourses] = useState<CourseType[]>([])
     useEffect(() => {
         // Fetch courses from the endpoint
         axios
