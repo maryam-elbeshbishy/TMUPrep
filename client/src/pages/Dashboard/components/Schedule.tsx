@@ -3,6 +3,7 @@ import { Box, Flex, IconButton, Select, Text } from '@chakra-ui/react'
 import { MdPostAdd } from 'react-icons/md'
 import { FiTrash2 } from 'react-icons/fi'
 import { axiosInstance } from '../../../utils/axios'
+import DashboardCourse from '../../../components/DashboardCourse'
 
 const SemTitles = ['Fall', 'Winter', 'Spring']
 
@@ -18,39 +19,40 @@ interface Course {
 }
 
 const Schedule = () => {
-    let scheduleID: string
+    const [scheduleID, setScheduleID] = useState<string>('')
     const [courses, setCourses] = useState<Course[]>([])
     const [yearList, setYearList] = useState<number[]>([1, 2, 3, 4])
     const [year, setYear] = useState<number>(1)
     const [termCourses, setTermCourses] = useState<Course[][] | null>([])
 
     useEffect(() => {
-        const getCourses = async () => {
+        let id: string
+
+        const getSchedules = async () => {
             await axiosInstance.get('/schedule/all').then(res => {
-                scheduleID = res.data[0]._id
+                id = res.data[0]._id
             })
 
-            if (scheduleID) {
-                await axiosInstance
-                    .get(`/schedule/${scheduleID}`)
-                    .then(res => {
-                        setCourses(res.data)
-                    })// hi stream
-            } else {
-                await axiosInstance.post('/schedule/').then(res => {
-                    scheduleID = res.data?.scheduleID
+            !id &&
+                axiosInstance.post('/schedule/').then(res => {
+                    id = res.data?.scheduleID
                 })
 
-                await axiosInstance
-                    .get(`/schedule/${scheduleID}`)
-                    .then(res => {
-                        setCourses(res.data)
-                    })
-            }
+            setScheduleID(id)
+        }
+
+        getSchedules()
+    }, [])
+
+    useEffect(() => {
+        const getCourses = async () => {
+            await axiosInstance.get(`/schedule/${scheduleID}`).then(res => {
+                setCourses(res.data)
+            })
         }
 
         getCourses()
-    }, [])
+    }, [scheduleID])
 
     useEffect(() => {
         const filteredCourses = courses.filter(
@@ -80,13 +82,31 @@ const Schedule = () => {
     }, [courses])
 
     const changeYear = (e: any) => {
-        e?.target && setYear(e.target.value)
+        e?.target && setYear(e?.target.value)
     }
 
     const addYear = () => {
         const newYear = yearList[yearList.length - 1] + 1
         setYearList([...yearList, newYear])
         setYear(newYear)
+    }
+
+    const deleteYear = async () => {
+        // Remove all the courses from the year
+        const coursesToDrop = courses
+            .filter(course => course.year == year)
+            .map(course => course.courseID)
+
+        await axiosInstance.delete(`/schedule/${scheduleID}`, {
+            data: { courseID: coursesToDrop },
+        })
+    }
+
+    const deleteCourse = async (course: string) => {
+        console.log(scheduleID)
+        await axiosInstance.delete(`/schedule/${scheduleID}`, {
+            data: { courseID: [course] },
+        })
     }
 
     return (
@@ -127,6 +147,7 @@ const Schedule = () => {
                         aria-label="trash"
                         bg="none"
                         fontSize="30px"
+                        onClick={deleteYear}
                         icon={<FiTrash2 />}
                     />
                 </Flex>
@@ -139,37 +160,53 @@ const Schedule = () => {
                 overflow="auto"
             >
                 {termCourses?.map((term: Course[], index: number) => (
-                    <Box
+                    <Flex
+                        direction="column"
                         key={index}
-                        bg="surface.dark" 
-                        w={{base: "90%", md:"30%"}} 
-                        h={{base: "33%", md:"100%"}}
+                        bg="surface.dark"
+                        w={{ base: '90%', md: '30%' }}
+                        h={{ base: '33%', md: '100%' }}
                         m="10px"
                         borderRadius="20px"
                         overflow="auto"
                     >
-                        <Box
-                            bg="surface.main"
-                            borderRadius="10px"
+                        <Flex
                             m="20px"
-                            h="30px"
                             pt="2px"
+                            textAlign="center"
+                            direction="column"
+                            align="center"
                         >
-                            <Text fontWeight="800">{SemTitles[index]}</Text>
-                            {term?.map((course: Course) => (
-                                <Box
-                                    key={course._id}
-                                    bg="surface.main"
-                                    borderRadius="10px"
-                                    m="20px"
-                                    h="30px"
-                                    pt="2px"
-                                >
-                                    <Text>{course.courseID}</Text>
-                                </Box>
-                            ))}
-                        </Box>
-                    </Box>
+                            <Text
+                                fontWeight="800"
+                                backgroundColor="primary.light"
+                                fontSize="xl"
+                                bg="surface.main"
+                                borderRadius="10px"
+                                p="15px"
+                                mb="40px"
+                                w="100%"
+                            >
+                                {SemTitles[index]}
+                            </Text>
+                            <Flex
+                                direction="column"
+                                gap="10px"
+                                pt="10px"
+                                width="100%"
+                            >
+                                {term?.map((course: Course) => (
+                                    <DashboardCourse
+                                        key={course._id}
+                                        courseCode={course.courseID}
+                                        dropCourse={() =>
+                                            deleteCourse(course.courseID)
+                                        }
+                                    />
+                                ))}
+                            </Flex>
+                        </Flex>
+                    </Flex>
                 ))}
             </Flex>
         </Box>
