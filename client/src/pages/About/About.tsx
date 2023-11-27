@@ -9,43 +9,15 @@ const contentWidth = ['90vw', '80vw', '30vw']
 const persons = [
     {
         imageSrc: 'https://bit.ly/dan-abramov',
-        firstName: 'Dan',
-        lastName: 'Abramov',
+        firstName: 'Test1',
+        lastName: 'Test2',
         description:
             'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
     },
     {
         imageSrc: 'https://bit.ly/dan-abramov',
-        firstName: 'Dan',
-        lastName: 'Abramov',
-        description:
-            'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-    },
-    {
-        imageSrc: 'https://bit.ly/dan-abramov',
-        firstName: 'Dan',
-        lastName: 'Abramov',
-        description:
-            'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-    },
-    {
-        imageSrc: 'https://bit.ly/dan-abramov',
-        firstName: 'Dan',
-        lastName: 'Abramov',
-        description:
-            'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-    },
-    {
-        imageSrc: 'https://bit.ly/dan-abramov',
-        firstName: 'Dan',
-        lastName: 'Abramov',
-        description:
-            'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
-    },
-    {
-        imageSrc: 'https://bit.ly/dan-abramov',
-        firstName: 'Dan',
-        lastName: 'Abramov',
+        firstName: 'Test3',
+        lastName: 'Test4',
         description:
             'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
     },

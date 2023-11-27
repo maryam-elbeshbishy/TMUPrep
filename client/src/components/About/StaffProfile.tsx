@@ -15,7 +15,6 @@ const StaffProfile = (props: StaffProfileProps) => {
             <Flex
                 flex="1"
                 className="staff-profile"
-                minWidth="400px"
                 flexDirection="column"
                 align="center"
             >
