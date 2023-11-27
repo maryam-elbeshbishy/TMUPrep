@@ -34,6 +34,7 @@ function Course({ courseCode, courseName, courseDesc }: CourseProps) {
                         pt="15px"
                         fontSize="2.5rem"
                         color="accent.main"
+                        _hover={{ backgroundColor: 'surface.dark' }}
                     >
                         <Box as="span" flex="1" textAlign="left">
                             <Text fontSize="2xl" color="gray.800">

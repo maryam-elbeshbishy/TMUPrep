@@ -1,7 +1,7 @@
 // PAGINATION
 import React from 'react'
-import { Flex, Button } from '@chakra-ui/react'
-
+import { Flex, IconButton, Text } from '@chakra-ui/react'
+import { GoTriangleLeft, GoTriangleRight } from 'react-icons/go'
 interface PaginationProps {
     totalPages: number
     currentPage: number
@@ -18,25 +18,33 @@ const Pagination: React.FC<PaginationProps> = ({
     }
 
     return (
-        <Flex>
-            {[...Array(totalPages)].map((_, index) => (
-                <Button
-                    key={index}
-                    onClick={() => handlePageChange(index + 1)}
-                    variant={currentPage === index + 1 ? 'solid' : 'ghost'}
-                    color={currentPage === index + 1 ? '#648DE6' : '#648DE6'}
-                    border={
-                        currentPage === index + 1 ? '1px solid #648DE6' : 'none'
-                    }
-                    _hover={{
-                        background: currentPage !== index + 1 && '#FFECA8',
-                    }}
-                    size="sm"
-                    background="transparent"
-                >
-                    {index + 1}
-                </Button>
-            ))}
+        <Flex flexDir="row" alignItems="center" gap="5px">
+            <IconButton
+                aria-label="left"
+                bg="none"
+                fontSize="36px"
+                icon={<GoTriangleLeft />}
+                onClick={() => {
+                    handlePageChange(currentPage - 1)
+                }}
+            />
+            <Text>Page</Text>
+            <Text display="inline" fontWeight="bold">
+                {currentPage}
+            </Text>
+            <Text>of</Text>
+            <Text display="inline" fontWeight="bold">
+                {totalPages}
+            </Text>
+            <IconButton
+                aria-label="right"
+                bg="none"
+                fontSize="36px"
+                icon={<GoTriangleRight />}
+                onClick={() => {
+                    handlePageChange(currentPage + 1)
+                }}
+            />
         </Flex>
     )
 }
