@@ -22,7 +22,7 @@ func Routes(router *gin.RouterGroup, mongoDB *mongo.Client) {
 		page, _ := strconv.Atoi(p)
 		page = page - 1
 
-		count, err := mongoDB.Database("tmuprep").Collection("courses").EstimatedDocumentCount(c)
+		count, err := mongoDB.Database("tmuprep").Collection("courses").CountDocuments(c, bson.D{{"courseCode", primitive.Regex{Pattern: search, Options: "i"}}})
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"error": err.Error(),
