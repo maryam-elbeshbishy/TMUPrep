@@ -63,7 +63,7 @@ const CourseHub = () => {
                 p="30px 25px"
                 pb="10px"
                 h="100%"
-                overflow="scroll"
+                overflowY="scroll"
             >
                 <Flex flexDir="column" gap="20px" mb="25px">
                     {courses.map((course, i) => {
