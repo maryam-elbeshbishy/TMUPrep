@@ -1,5 +1,5 @@
 import React from 'react'
-import { Box, Flex, Text, Button, Card } from '@chakra-ui/react'
+import { Box, Flex, Text, Button } from '@chakra-ui/react'
 
 type CourseProps = {
     courseCode: string

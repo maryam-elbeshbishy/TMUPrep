@@ -24,6 +24,7 @@ const Schedule = () => {
     const [yearList, setYearList] = useState<number[]>([1, 2, 3, 4])
     const [year, setYear] = useState<number>(1)
     const [termCourses, setTermCourses] = useState<Course[][] | null>([])
+    const [deletedCourses, setDeletedCourses] = useState<string[]>([])
 
     useEffect(() => {
         let id: string
@@ -52,7 +53,7 @@ const Schedule = () => {
         }
 
         getCourses()
-    }, [scheduleID])
+    }, [scheduleID, deletedCourses])
 
     useEffect(() => {
         const filteredCourses = courses.filter(
@@ -100,13 +101,16 @@ const Schedule = () => {
         await axiosInstance.delete(`/schedule/${scheduleID}`, {
             data: { courseID: coursesToDrop },
         })
+
+        setDeletedCourses([...deletedCourses, ...coursesToDrop])
     }
 
     const deleteCourse = async (course: string) => {
-        console.log(scheduleID)
         await axiosInstance.delete(`/schedule/${scheduleID}`, {
             data: { courseID: [course] },
         })
+
+        setDeletedCourses([...deletedCourses, course])
     }
 
     return (
