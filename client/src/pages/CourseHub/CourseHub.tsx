@@ -60,7 +60,7 @@ const CourseHub = () => {
                 bg="surface.main"
                 borderRadius="20px"
                 mt="10px"
-                mb="20px"
+                mb="70px"
                 mx="10px"
                 p="30px 25px"
                 pb="10px"
