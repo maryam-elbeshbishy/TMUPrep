@@ -1,7 +1,6 @@
 import { Box, Flex } from '@chakra-ui/react'
 import Schedule from './components/Schedule'
-
-import Sidebar from './components/SideBar.tsx'
+import Sidebar from './components/SideBar'
 
 const Dashboard = () => {
     return (
