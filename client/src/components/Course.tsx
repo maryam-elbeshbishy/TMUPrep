@@ -13,9 +13,17 @@ type CourseProps = {
     courseCode: string
     courseName: string
     courseDesc: string
+    coursePrereqs: string[]
+    courseAntireqs: string[]
 }
 
-function Course({ courseCode, courseName, courseDesc }: CourseProps) {
+function Course({
+    courseCode,
+    courseName,
+    courseDesc,
+    coursePrereqs,
+    courseAntireqs,
+}: CourseProps) {
     return (
         <Flex overflow="hidden">
             <Box bg="success" borderLeftRadius="10px" p="5px 20px">
@@ -45,6 +53,26 @@ function Course({ courseCode, courseName, courseDesc }: CourseProps) {
                     </AccordionButton>
                     <AccordionPanel pb={4} textAlign="left">
                         <Text fontSize="lg">{courseDesc}</Text>
+                        {coursePrereqs && (
+                            <Box mt="15px">
+                                <Text display="inline" fontWeight="bold">
+                                    Prerequisites:{' '}
+                                </Text>
+                                <Text display="inline">
+                                    {coursePrereqs.join(', ')}
+                                </Text>
+                            </Box>
+                        )}
+                        {courseAntireqs && (
+                            <Box>
+                                <Text display="inline" fontWeight="bold">
+                                    Antirequisites:{' '}
+                                </Text>
+                                <Text display="inline">
+                                    {courseAntireqs.join(', ')}
+                                </Text>
+                            </Box>
+                        )}
                     </AccordionPanel>
                 </AccordionItem>
             </Accordion>

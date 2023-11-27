@@ -1,4 +1,4 @@
-import { Box, VStack, IconButton, useBreakpointValue } from '@chakra-ui/react'
+import { Box, VStack, IconButton } from '@chakra-ui/react'
 import { FaChevronRight, FaChevronDown, FaPlus } from 'react-icons/fa'
 import { useState } from 'react'
 
@@ -17,11 +17,6 @@ function CourseSearchOption({
     prereqs,
     antireqs,
 }: CourseSearchOptionProps) {
-    const display = useBreakpointValue({
-        base: 'none',
-        sm: 'block',
-    })
-
     const [selected, setSelected] = useState(false)
     const handleClick = () => {
         setSelected(!selected)
@@ -34,7 +29,6 @@ function CourseSearchOption({
             borderRadius="10px"
             padding="10px"
             width="100%"
-            display={display}
         >
             <VStack align="start">
                 <Box
@@ -57,6 +51,7 @@ function CourseSearchOption({
                     noOfLines={selected ? 0 : 2}
                     overflow="hidden"
                     textAlign="start"
+                    // display={display}
                 >
                     {description}
                     {prereqs && (

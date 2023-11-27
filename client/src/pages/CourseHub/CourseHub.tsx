@@ -8,6 +8,8 @@ interface CourseType {
     courseCode: string
     title: string
     description: string
+    prerequisites: string[]
+    antirequisites: string[]
 }
 
 const CourseHub = () => {
@@ -73,6 +75,8 @@ const CourseHub = () => {
                                 courseCode={course.courseCode}
                                 courseName={course.title}
                                 courseDesc={course.description}
+                                coursePrereqs={course.prerequisites}
+                                courseAntireqs={course.antirequisites}
                             />
                         )
                     })}
