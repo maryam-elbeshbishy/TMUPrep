@@ -6,9 +6,9 @@ import (
 	"tmuprep/middleware"
 
 	"tmuprep/routes/courseRoutes"
+	"tmuprep/routes/graduateRoutes"
 	"tmuprep/routes/scheduleRoutes"
 	"tmuprep/routes/userRoutes"
-	"tmuprep/routes/graduateRoutes"
 
 	"github.com/gin-gonic/gin"
 
@@ -33,9 +33,10 @@ func main() {
 	})
 
 	router.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"*"},
-		AllowHeaders:     []string{"Content-Type","Access-Control-Allow-Headers","Authorization"},
-	  }))
+		AllowOrigins: []string{"*"},
+		AllowHeaders: []string{"Content-Type", "Access-Control-Allow-Headers", "Authorization"},
+		AllowMethods: []string{"GET", "POST", "PUT", "DELETE"},
+	}))
 
 	userRoute := router.Group("/")
 	{
