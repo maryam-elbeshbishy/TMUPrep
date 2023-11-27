@@ -1,8 +1,29 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import Course from '../../components/Course'
 import { Box, Flex, Input, Text } from '@chakra-ui/react'
+import { getCourses } from '../../services/courses'
+
+interface CourseType {
+    courseCode: string
+    title: string
+    description: string
+}
 
 const CourseHub = () => {
+    const [courses, setCourses] = useState<CourseType[]>([])
+    // const [currPage, setCurrPage] = useState<number>(1)
+    // const [pages, setPages] = useState<number>(0)
+
+    useEffect(() => {
+        const fetchData = async () => {
+            const courseData = await getCourses(5, 1, '')
+            setCourses(courseData['courses'])
+            // setPages(courseData["numberOfPages"])
+        }
+
+        fetchData()
+    }, [])
+
     return (
         <Flex bg="surface.dark" w="100vw" h="100vh" pt="80px">
             <Flex
@@ -33,7 +54,7 @@ const CourseHub = () => {
                 bg="surface.main"
                 borderRadius="20px"
                 w="70%"
-                mt="5px"
+                mt="10px"
                 mb="20px"
                 mx="10px"
                 p="40px 25px"
@@ -41,11 +62,21 @@ const CourseHub = () => {
                 <Text textAlign="left" fontSize="lg" pb="40px" ml="5px">
                     Selected filters:
                 </Text>
-                <Course
-                    courseCode="CPS109"
-                    courseName="Computer Science I"
-                    courseDesc=" An introductory programming course designed to introduce fundamental Computer Science concepts such as abstraction, modelling and algorithm design. Emphasis is placed on producing correct software. Replaces CPS 513"
-                />
+                <Flex flexDir="column" h="90%">
+                    <Box flexGrow="1" overflowY="scroll" h="1px">
+                        <Flex flexDir="column" gap="20px">
+                            {courses.map(course => {
+                                return (
+                                    <Course
+                                        courseCode={course.courseCode}
+                                        courseName={course.title}
+                                        courseDesc={course.description}
+                                    />
+                                )
+                            })}
+                        </Flex>
+                    </Box>
+                </Flex>
             </Box>
         </Flex>
     )

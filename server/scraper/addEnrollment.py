@@ -599,10 +599,12 @@ enrollments_collection = db.enrollments
 for x in range(len(courses)):
     enrollments_collection.insert_one(
         {
-            "term": courses[x]["term"], 
+            "term": "Fall" if courses[x]["term"] % 2 == 1 else "Winter", 
             "year": courses[x]["year"], 
             "scheduleID": ObjectId(courses[x]["schedule"]), 
             "courseID": courses[x]["courseId"], 
             "userID": ObjectId(courses[x]["userId"])
         })
     print("Inserted", courses[x]["courseId"])
+
+# enrollments_collection.delete_many({})
