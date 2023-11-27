@@ -5,3 +5,18 @@
     padding: 0;
     text-align: center;
 }
+
+::-webkit-scrollbar {
+    height: 12px;
+    width: 12px;
+    background: #fffaf2;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #c0bcb3;
+    -webkit-border-radius: 1ex;
+}
+
+::-webkit-scrollbar-corner {
+    background: #fffaf2;
+}
