@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Box, Flex, IconButton, Select, Text } from '@chakra-ui/react'
+import { Box, Flex, IconButton, Select, Text, Button } from '@chakra-ui/react'
 import { MdPostAdd } from 'react-icons/md'
 import { FiTrash2 } from 'react-icons/fi'
 import { axiosInstance } from '../../../utils/axios'
@@ -25,6 +25,9 @@ const Schedule = () => {
     const [year, setYear] = useState<number>(1)
     const [termCourses, setTermCourses] = useState<Course[][] | null>([])
     const [deletedCourses, setDeletedCourses] = useState<string[]>([])
+    const [showDialog, setShowDialog] = useState<boolean>(false)
+    const [graduate, setGraduate] = useState<any>()
+    const [isWaiting, setIsWaiting] = useState<boolean>(false)
 
     useEffect(() => {
         let id: string
@@ -69,7 +72,7 @@ const Schedule = () => {
     }, [courses, year])
 
     useEffect(() => {
-        const highestYear = courses.reduce(
+        const highestYear = courses?.reduce(
             (max, obj) => (obj.year > max ? obj.year : max),
             Number.MIN_SAFE_INTEGER,
         )
@@ -80,6 +83,10 @@ const Schedule = () => {
             )
         }
     }, [courses])
+
+    useEffect(() => {
+        graduate && setShowDialog(true)
+    }, [graduate])
 
     const changeYear = (e: any) => {
         e?.target && setYear(e?.target.value)
@@ -119,23 +126,33 @@ const Schedule = () => {
         setDeletedCourses([...deletedCourses, course])
     }
 
+    const checkRequirements = async () => {
+        setIsWaiting(true)
+        await axiosInstance.post(`/graduate/${scheduleID}`).then(res => {
+            setGraduate(res.data)
+            setIsWaiting(false)
+        })
+    }
+
     return (
         <Box
             borderRadius="20px"
             bg="surface.main"
-            w="65%"
-            h="98%"
-            m="10px"
-            p="20px 30px"
+            w={{ base: '100%', lg: '65%' }}
+            // h={{base: '100%', lg: '98%'}}
+            m={{base: "none", lg: "10px"}}
+            p={{base: "20px 0", lg: "20px 30px"}}
         >
             <Flex
-                flexDir="row"
+                flexDir={{base:"column", lg:"row"}}
                 justifyContent="space-between"
                 marginBottom="20px"
+                gap="2px"
+                align={{base:"center", lg:"none"}}
             >
                 <Select
                     placeholder="Select schedule here"
-                    w="30%"
+                    w={{base: "90%", lg: "30%"}}
                     bg="background"
                     value={year}
                     onChange={changeYear}
@@ -145,6 +162,16 @@ const Schedule = () => {
                     ))}
                 </Select>
                 <Flex gap="30px">
+                    <Button
+                        backgroundColor="primary.main"
+                        color="white"
+                        onClick={checkRequirements}
+                        minWidth="121px"
+                    >
+                        <Text>
+                            {isWaiting ? 'Waiting...' : 'Can I Graduate?'}
+                        </Text>
+                    </Button>
                     <IconButton
                         aria-label="add"
                         bg="none"
@@ -162,9 +189,95 @@ const Schedule = () => {
                     />
                 </Flex>
             </Flex>
+            {showDialog && (
+                <Flex
+                    background={graduate?.canGraduate ? 'success' : 'error'}
+                    w="100%"
+                    color="black"
+                    p="15px"
+                    m="10px"
+                    borderRadius="20px"
+                    justifyContent="space-between"
+                    gap="5px"
+                >
+                    <Flex
+                        direction="column"
+                        fontSize="xl"
+                        color="red"
+                        textAlign="start"
+                    >
+                        {graduate?.canGraduate ? (
+                            <Text
+                                fontSize="2xl"
+                                fontWeight="bold"
+                                color="Green"
+                            >
+                                Congrats! You can graduate with this schedule =D
+                            </Text>
+                        ) : (
+                            <>
+                                <Text fontSize="2xl" fontWeight="bold">
+                                    Seems like there's a few things missing
+                                </Text>
+                                {graduate?.antirequisite && (
+                                    <Text
+                                        decoration="underline"
+                                        fontWeight="bold"
+                                    >
+                                        Courses with antirequisites conflicts:
+                                    </Text>
+                                )}
+                                {graduate?.antirequisite?.map((anti: any) => (
+                                    <Text>{anti.courseID}</Text>
+                                ))}
+                                {graduate?.prerequisite && (
+                                    <Text
+                                        decoration="underline"
+                                        fontWeight="bold"
+                                    >
+                                        Courses with prerequisites conflicts:
+                                    </Text>
+                                )}
+                                {graduate?.prerequisite?.map((pre: any) => (
+                                    <Text>{pre.courseID}</Text>
+                                ))}
+                                {graduate?.requirements && (
+                                    <Text
+                                        decoration="underline"
+                                        fontWeight="bold"
+                                    >
+                                        Requirements missing:
+                                    </Text>
+                                )}
+                                {graduate?.requirements?.map(
+                                    (requirement: any) => {
+                                        const { name, missing } = requirement
+                                        return (
+                                            <Flex>
+                                                {name} -{missing}{' '}
+                                                {missing > 1
+                                                    ? 'courses'
+                                                    : 'course'}{' '}
+                                                missing
+                                            </Flex>
+                                        )
+                                    },
+                                )}
+                            </>
+                        )}
+                    </Flex>
+                    <Button
+                        onClick={() => setShowDialog(false)}
+                        borderRadius="50%"
+                        background="background"
+                    >
+                        X
+                    </Button>
+                </Flex>
+            )}
             <Flex
                 flex="1"
-                direction={{ base: 'column', md: 'row' }}
+                direction={{ base: 'column', lg: 'row' }}
                 h="90%"
                 justifyContent="space-between"
                 overflow="auto"
@@ -174,11 +287,12 @@ const Schedule = () => {
                         direction="column"
                         key={index}
                         bg="surface.dark"
-                        w={{ base: '90%', md: '30%' }}
-                        h={{ base: '33%', md: '100%' }}
+                        w={{ base: '100%', lg: '30%' }}
+                        h={{ base: '33%', lg: '85%' }}
                         m="10px"
                         borderRadius="20px"
                         overflow="auto"
+                        minHeight="500px"
                     >
                         <Flex
                             m="20px"
@@ -187,18 +301,27 @@ const Schedule = () => {
                             direction="column"
                             align="center"
                         >
-                            <Text
-                                fontWeight="800"
-                                backgroundColor="primary.light"
-                                fontSize="xl"
-                                bg="surface.main"
-                                borderRadius="10px"
-                                p="15px"
-                                mb="40px"
-                                w="100%"
+                            <Flex
+                                width="100%"
+                                height="100%"
+                                backgroundColor="surface.dark"
+                                position="sticky"
+                                top="0"
+                                pt="20px"
+                                zIndex="99"
                             >
-                                {SemTitles[index]}
-                            </Text>
+                                <Text
+                                    fontWeight="800"
+                                    fontSize="xl"
+                                    bg="surface.main"
+                                    borderRadius="10px"
+                                    p="15px"
+                                    mb="30px"
+                                    w="100%"
+                                >
+                                    {SemTitles[index]}
+                                </Text>
+                            </Flex>
                             <Flex
                                 direction="column"
                                 gap="10px"
