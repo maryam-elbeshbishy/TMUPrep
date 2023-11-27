@@ -24,7 +24,6 @@ const Schedule = () => {
     const [yearList, setYearList] = useState<number[]>([1, 2, 3, 4])
     const [year, setYear] = useState<number>(1)
     const [termCourses, setTermCourses] = useState<Course[][] | null>([])
-    const [deletedCourses, setDeletedCourses] = useState<string[]>([])
     const [showDialog, setShowDialog] = useState<boolean>(false)
     const [graduate, setGraduate] = useState<any>()
     const [isWaiting, setIsWaiting] = useState<boolean>(false)
@@ -50,12 +49,30 @@ const Schedule = () => {
 
     useEffect(() => {
         const getCourses = async () => {
-            const {data} = await axiosInstance.get(`/schedule/${scheduleID}`)
+            const { data } = await axiosInstance.get(`/schedule/${scheduleID}`)
             setCourses(data)
         }
 
+        const addCourse = async (
+            courseCode: string,
+            year: number,
+            term: number,
+        ) => {
+            await axiosInstance.post(`/schedule/${scheduleID}`, {
+                courseList: [{ courseID: courseCode, year, term }],
+            })
+        }
+
+        document.addEventListener('getCourses', e => {
+            getCourses()
+        })
+
+        document.addEventListener('addCourse', async (e: any) => {
+            addCourse(e?.detail?.courseCode, e?.detail?.year, e?.detail?.term)
+        })
+
         getCourses()
-    }, [scheduleID, deletedCourses])
+    }, [scheduleID])
 
     useEffect(() => {
         const filteredCourses = courses?.filter(
@@ -96,13 +113,6 @@ const Schedule = () => {
         const newYear = yearList[yearList.length - 1] + 1
         setYearList([...yearList, newYear])
         setYear(newYear)
-
-        // axiosInstance.post('/schedule/', {
-        //     courseID: [],
-        //     term: 1,
-        //     year: newYear,
-        // })
-
     }
 
     const deleteYear = async () => {
@@ -115,7 +125,9 @@ const Schedule = () => {
             data: { courseID: coursesToDrop },
         })
 
-        setDeletedCourses([...deletedCourses, ...coursesToDrop])
+        const event = new Event('getCourses')
+
+        document.dispatchEvent(event)
     }
 
     const deleteCourse = async (course: string) => {
@@ -123,7 +135,9 @@ const Schedule = () => {
             data: { courseID: [course] },
         })
 
-        setDeletedCourses([...deletedCourses, course])
+        const event = new Event('getCourses')
+
+        document.dispatchEvent(event)
     }
 
     const checkRequirements = async () => {
@@ -140,19 +154,19 @@ const Schedule = () => {
             bg="surface.main"
             w={{ base: '100%', lg: '65%' }}
             // h={{base: '100%', lg: '98%'}}
-            m={{base: "none", lg: "10px"}}
-            p={{base: "20px 0", lg: "20px 30px"}}
+            m={{ base: 'none', lg: '10px' }}
+            p={{ base: '20px 0', lg: '20px 30px' }}
         >
             <Flex
-                flexDir={{base:"column", lg:"row"}}
+                flexDir={{ base: 'column', lg: 'row' }}
                 justifyContent="space-between"
                 marginBottom="20px"
                 gap="2px"
-                align={{base:"center", lg:"none"}}
+                align={{ base: 'center', lg: 'none' }}
             >
                 <Select
                     placeholder="Select schedule here"
-                    w={{base: "90%", lg: "30%"}}
+                    w={{ base: '90%', lg: '30%' }}
                     bg="background"
                     value={year}
                     onChange={changeYear}

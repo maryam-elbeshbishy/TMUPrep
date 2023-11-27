@@ -26,11 +26,10 @@ type CourseSearchOptionProps = {
 const years = [1, 2, 3, 4]
 
 const terms = {
-    "Fall": 1,
-    "Winter": 2,
-    "Spring": 3
-};
-
+    Fall: 1,
+    Winter: 2,
+    Spring: 3,
+}
 
 function CourseSearchOption({
     code,
@@ -43,39 +42,43 @@ function CourseSearchOption({
     const handleClick = () => {
         setSelected(!selected)
     }
-    const addCourse = (year: number, termNumber: number) => async (event: React.MouseEvent<HTMLButtonElement>) => {
-        console.log(`Year: ${year}, Term: ${termNumber}`);
-        console.log(event)
-        const res = await axiosInstance.post(
-            '/schedule/65643045f35a162b45d3679b',
-            {
-                courseList: [
-                    {
-                        courseID: code,
-                        year: year,
-                        term: termNumber,
-                    },
-                ],
-            },
-        )
-        console.log(res);
-    };
-    
+    const addCourse =
+        (year: number, termNumber: number) =>
+        (event: React.MouseEvent<HTMLButtonElement>) => {
+            const e1 = new CustomEvent('addCourse', {
+                detail: {
+                    courseCode: code,
+                    year,
+                    term: termNumber,
+                },
+            })
+
+            document.dispatchEvent(e1)
+
+            const e = new Event('getCourses')
+
+            document.dispatchEvent(e)
+        }
+
     const getYears = () => {
-        const buttons = [];
+        const buttons = []
         for (const year of years) {
             for (const [termName, termNumber] of Object.entries(terms)) {
-                const buttonLabel = `Year ${year} - ${termName}`;
+                const buttonLabel = `Year ${year} - ${termName}`
                 buttons.push(
-                    <Button key={`${year}-${termNumber}`} onClick={(event) => addCourse(year, termNumber)(event)} m="5px" colorScheme="blue">
+                    <Button
+                        key={`${year}-${termNumber}`}
+                        onClick={event => addCourse(year, termNumber)(event)}
+                        m="5px"
+                        colorScheme="blue"
+                    >
                         {buttonLabel}
-                    </Button>
-                );
+                    </Button>,
+                )
             }
         }
-        return buttons;
-    };
-    
+        return buttons
+    }
 
     return (
         <Box
