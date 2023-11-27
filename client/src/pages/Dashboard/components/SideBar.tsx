@@ -65,10 +65,10 @@ const Sidebar = () => {
     return (
         <Box
             bg="secondary.main"
-            w={['100%', '30%']}
+            w="100%"
             h="100%"
             overflowY="auto"
-            p="20px"
+            p="20px" // 20px
         >
             <VStack spacing="20px">
                 <Input
