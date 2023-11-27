@@ -63,7 +63,13 @@ const Sidebar = () => {
     }
 
     return (
-        <Box bg="secondary.main" w="30%" h="100%" overflowY="auto" p="20px">
+        <Box
+            bg="secondary.main"
+            w={['100%', '30%']}
+            h="100%"
+            overflowY="auto"
+            p="20px"
+        >
             <VStack spacing="20px">
                 <Input
                     value={search}
