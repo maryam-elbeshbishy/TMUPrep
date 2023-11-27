@@ -72,7 +72,7 @@ function App() {
 
     return (
         <>
-            <Navbar />
+            {state.isAuthenticated && <Navbar />}
             <RouterProvider router={router} />
         </>
     )
