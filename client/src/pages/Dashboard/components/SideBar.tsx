@@ -1,4 +1,4 @@
-import { Box, VStack, Input } from '@chakra-ui/react'
+import { Box, VStack, Input, Text } from '@chakra-ui/react'
 import CourseSearchOption from './CourseSearchOptions.tsx'
 import Pagination from '../../../components/Pagination.tsx'
 import Cookies from 'universal-cookie'
@@ -71,6 +71,7 @@ const Sidebar = () => {
             p="20px"
         >
             <VStack spacing="20px">
+                
                 <Input
                     value={search}
                     onChange={updateCourseList}

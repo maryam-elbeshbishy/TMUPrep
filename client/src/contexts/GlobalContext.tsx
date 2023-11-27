@@ -1,5 +1,9 @@
 import React, { createContext, useReducer } from 'react'
 
+type Course = {
+    courseI
+}
+
 type InitialStateType = {
     isAuthenticated: boolean | null
 }
@@ -27,6 +31,11 @@ const Reducer = (
             return {
                 ...state,
                 isAuthenticated: false,
+            }
+        case 'UPDATECOURSES':
+            return {
+                ...state,
+
             }
         default:
             return state

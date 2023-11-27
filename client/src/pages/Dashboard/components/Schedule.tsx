@@ -47,16 +47,15 @@ const Schedule = () => {
 
     useEffect(() => {
         const getCourses = async () => {
-            await axiosInstance.get(`/schedule/${scheduleID}`).then(res => {
-                setCourses(res.data)
-            })
+            const {data} = await axiosInstance.get(`/schedule/${scheduleID}`)
+            setCourses(data)
         }
 
         getCourses()
     }, [scheduleID, deletedCourses])
 
     useEffect(() => {
-        const filteredCourses = courses.filter(
+        const filteredCourses = courses?.filter(
             (course: Course) => course.year == year,
         )
 
@@ -90,6 +89,13 @@ const Schedule = () => {
         const newYear = yearList[yearList.length - 1] + 1
         setYearList([...yearList, newYear])
         setYear(newYear)
+
+        // axiosInstance.post('/schedule/', {
+        //     courseID: [],
+        //     term: 1,
+        //     year: newYear,
+        // })
+
     }
 
     const deleteYear = async () => {
